@@ -1,15 +1,13 @@
-using ModelingToolkit, OrdinaryDiffEqDefault
+using FrictionBrakeDemo
+using ModelingToolkit, DyadInterface
 
-t_end = 1800
+@named model = BrakeThermalTest_Constant()
 
-@named full_sys=BrakeThermalTest_Constant()
+res = @time TransientAnalysis(; model = model, stop = 1800)
 
-sysRed=structural_simplify(full_sys)
-prob=ODEProblem(sysRed, [], (0.0, t_end))
+sol = rebuild_sol(res)
+sol(1800; idxs = model.brake_thermal.disk_mass.T)
+sol(1800; idxs = model.brake_thermal.pad_mass.T)
 
-@time sol=solve(prob, OrdinaryDiffEqDefault.Rodas5P(), abstol = 1e-6, reltol = 1e-6, progress=true);
-
-plot(sol, idxs=[sysRed.brake_thermal.disk_mass.T, sysRed.brake_thermal.pad_mass.T])
-
-sol[sysRed.brake_thermal.disk_mass.T][end]
-sol[sysRed.brake_thermal.pad_mass.T][end]
+using Plots
+plot(res; idxs=[model.brake_thermal.disk_mass.T, model.brake_thermal.pad_mass.T])

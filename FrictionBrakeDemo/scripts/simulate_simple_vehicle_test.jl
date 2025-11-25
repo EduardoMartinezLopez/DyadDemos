@@ -1,16 +1,12 @@
-using ModelingToolkit, OrdinaryDiffEqDefault
+using FrictionBrakeDemo
+using ModelingToolkit, DyadInterface
 
-t_end = 100
+@named model = SimpleVehicleTest_CoastDown()
+res = @time TransientAnalysis(; model, stop = 100)
 
-@named full_sys=SimpleVehicleTest_Constant()
-@named full_sys=SimpleVehicleTest_CoastDown()
+sol = rebuild_sol(res)
+sol[model.vehicle.vehicle_speed][end]
 
+using Plots
+plot(sol, idxs=[model.vehicle.vehicle_speed])
 
-sysRed=structural_simplify(full_sys)
-prob=ODEProblem(sysRed, [], (0.0, t_end))
-
-@time sol=solve(prob, OrdinaryDiffEqDefault.Rodas5P(), abstol = 1e-6, reltol = 1e-6, progress=true);
-
-plot(sol, idxs=[sysRed.vehicle.vehicle_speed])
-
-sol[sysRed.vehicle.vehicle_speed][end]
