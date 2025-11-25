@@ -1,0 +1,189 @@
+# Friction brake component that converts mechanical power to heat
+# Provides brake torque based on normalized command and outputs heat to disk and pad
+component FrictionBrake
+  # Mechanical interface - rotational connection
+  shaft = Spline() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
+  # Thermal interfaces - heat outputs (per wheel)
+  disk = Node() [{"Dyad": {"placement": {"icon": {"x1": 200, "y1": -50, "x2": 300, "y2": 50}}}}]
+  pad = Node() [{"Dyad": {"placement": {"icon": {"x1": 700, "y1": -50, "x2": 800, "y2": 50}}}}]
+  # Control input - normalized brake command (0 to 1)
+  brake_command = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  # Geometric parameters
+  # Effective friction radius [m]
+  parameter R_effective::Length = 0.15
+  # Number of friction surfaces (1=single-sided, 2=double-sided)
+  parameter N_surfaces::Integer = 2
+  # Number of wheels with identical brakes
+  parameter N_wheels::Integer = 4
+  # Actuation parameter
+  # Maximum normal force per wheel [N]
+  parameter F_normal_max::Force = 5000
+  # Material properties
+  # Base coefficient of friction [-]
+  parameter μ_0::Real = 0.4
+  # Temperature coefficient of friction [1/K]
+  parameter α_T::Real = 0.0005
+  # Reference temperature [K]
+  parameter T_ref::Temperature = 293.15
+  # Heat partition parameter
+  # Heat partition fraction to disk [-]
+  parameter f_partition::Real = 0.6
+  # Internal variables
+  # Actual normal force applied
+  variable F_normal::Force
+  # Interface temperature
+  variable T_interface::Temperature
+  # Effective coefficient of friction
+  variable μ::Real
+  # Torque from single friction surface
+  variable T_brake_single_surface::Torque
+  # Brake torque per wheel
+  variable T_brake_per_wheel::Torque
+  # Magnitude of total brake torque
+  variable T_brake_magnitude::Torque
+  # Total friction power
+  variable P_friction_total::Power
+  variable ω::AngularVelocity
+relations
+  # Extract angular velocity from mechanical interface
+  ω = der(shaft.phi)
+  # Normal force from brake command
+  F_normal = brake_command * F_normal_max
+  # Interface temperature (average of disk and pad)
+  T_interface = (disk.T + pad.T) / 2
+  # Temperature-dependent friction coefficient
+  μ = μ_0 * (1 - α_T * (T_interface - T_ref))
+  # Friction torque calculations
+  T_brake_single_surface = μ * F_normal * R_effective
+  T_brake_per_wheel = T_brake_single_surface * N_surfaces
+  T_brake_magnitude = T_brake_per_wheel * N_wheels
+  # Total power dissipation (always positive)
+  P_friction_total = T_brake_magnitude * abs(ω)
+  # Apply brake torque (always opposes rotation direction)
+  shaft.tau = sign(ω) * T_brake_magnitude
+  # Heat flow outputs (per wheel)
+  disk.Q = -f_partition * P_friction_total / N_wheels
+  pad.Q = -(1 - f_partition) * P_friction_total / N_wheels
+metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//brake_caliper.svg"}}}
+end
+
+# Test system for FrictionBrake with inertia, torque source, and thermal boundaries
+test component FrictionBrakeTest
+  # Main friction brake component
+  brake = FrictionBrake(N_wheels = 1, N_surfaces = 1) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 340, "y1": 310, "x2": 440, "y2": 410, "rot": 0}
+      }
+    }
+  }]
+  # Inertia connected to brake shaft
+  inertia = RotationalComponents.Inertia(J = 2.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 380, "y1": 450, "x2": 480, "y2": 550, "rot": 0}
+      }
+    }
+  }]
+  # Torque source providing driving torque
+  torque_source = RotationalComponents.TorqueSource() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 170, "y1": 450, "x2": 270, "y2": 550, "rot": 0}
+      }
+    }
+  }]
+  # Fixed support for torque source
+  fixed_support = RotationalComponents.Fixed() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 170, "y1": 620, "x2": 270, "y2": 720, "rot": 0}
+      }
+    }
+  }]
+  # Fixed temperature boundaries for thermal ports
+  disk_boundary = ThermalComponents.FixedTemperature(T = 293.15) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 210, "y1": 170, "x2": 310, "y2": 270, "rot": 0}
+      }
+    }
+  }]
+  # 20°C ambient
+  pad_boundary = ThermalComponents.FixedTemperature(T = 293.15) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 200, "y1": 40, "x2": 300, "y2": 140, "rot": 0}
+      }
+    }
+  }]
+  # 20°C ambient
+  # Step input for brake command (activated at 4s)
+  brake_command = BlockComponents.Step(height = 1.0, start_time = 4.0, offset = 0.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 200, "y1": 310, "x2": 300, "y2": 410, "rot": 0}
+      }
+    }
+  }]
+  # Constant torque input
+  torque_input = BlockComponents.Constant(k = 50.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 450, "x2": 120, "y2": 550, "rot": 0}
+      }
+    }
+  }]
+relations
+  # Thermal connections
+  connect(brake.disk, disk_boundary.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 365, "y": 220}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(brake.pad, pad_boundary.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 415, "y": 90}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Control connections
+  connect(brake_command.y, brake.brake_command) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  connect(torque_input.y, torque_source.tau) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  # Initial conditions for dynamic states
+  initial inertia.phi = 0.0
+  # Initial shaft position
+  initial inertia.w = 10.0
+  # Initial shaft speed (10 rad/s)
+  # Initial guess for brake interface temperature to avoid algebraic loop
+  initial brake.T_interface = 293.15
+  connect(torque_source.support, fixed_support.spline) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  connect(torque_source.spline, inertia.spline_a) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  connect(brake.shaft, inertia.spline_b) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 500, "y": 360}, {"x": 500, "y": 500}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 4.75,
+        "atol": {"inertia.w": 0.001, "brake.disk.Q": 0.001, "brake.pad.Q": 0.001},
+        "expect": {
+          "initial": {"inertia.w": 10},
+          "signals": ["inertia.w", "brake.disk.Q", "brake.pad.Q"]
+        }
+      }
+    }
+  }
+}
+end
+
+# Transient analysis for FrictionBrake test
+analysis FrictionBrakeTestAnalysis
+  extends TransientAnalysis(stop = 4.75)
+  model = FrictionBrakeTest()
+end

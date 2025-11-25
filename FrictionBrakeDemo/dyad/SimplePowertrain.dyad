@@ -1,0 +1,110 @@
+# Powertrain model with throttle input and rotational torque output
+component SimplePowertrain
+  # Throttle command input (0-1 normalized)
+  throttle = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
+  # Vehicle speed
+  vehicle_speed = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
+  # Output drive spline (rotational connector)
+  drive = Spline() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
+  # Maximum torque capacity
+  parameter base_torque::Torque = 150.0
+  # Normalized torque coefficients as a function of vehicle speed: c[1] + c[2]*vehicle_speed + c[3]*vehicle_speed^2 + c[3]*vehicle_speed^2
+  parameter c_normalized_torque::Real[4] = [1.2343E+01, -5.7128E-01, 1.0451E-02, -6.2024E-05]
+  # Time constant for torque response
+  parameter tau::Time = 0.1
+  # Torque start value
+  parameter tau_start::Torque = 0
+  # Normalized torque
+  variable normalized_torque::Real
+  # Actual torque being produced
+  variable torque::Torque
+relations
+  initial torque = tau_start
+  normalized_torque = c_normalized_torque[1] + c_normalized_torque[2] * vehicle_speed + c_normalized_torque[3] * vehicle_speed ^ 2 + c_normalized_torque[4] * vehicle_speed ^ 3
+  # First-order lag dynamics: torque response to throttle
+  der(torque) = (throttle * base_torque * normalized_torque - torque) / tau
+  # Torque acts on the drive spline
+  drive.tau = -torque
+metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//powertrain.svg"}}}
+end
+
+# Test harness with inertial load and damper
+test component TestPowertrain
+  # Step input for throttle: starts at 1, drops to 0 at t=25s
+  throttle_cmd = BlockComponents.Step(height = -1.0, offset = 1.0, start_time = 25.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+      }
+    }
+  }]
+  # Powertrain under test
+  powertrain = SimplePowertrain(base_torque = 150.0, tau = 0.1) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 155, "y1": 45, "x2": 255, "y2": 145, "rot": 0}
+      }
+    }
+  }]
+  # Inertial load
+  load = RotationalComponents.Inertia(J = 1.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 285, "y1": 45, "x2": 385, "y2": 145, "rot": 0}
+      }
+    }
+  }]
+  # Damper representing resistive load
+  damper = RotationalComponents.Damper(d = 5.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 415, "y1": 45, "x2": 515, "y2": 145, "rot": 0}
+      }
+    }
+  }]
+  # Fixed reference for damper
+  fixed = RotationalComponents.Fixed() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 540, "y1": 150, "x2": 640, "y2": 250, "rot": 0}
+      }
+    }
+  }]
+relations
+  # Connect throttle command
+  connect(throttle_cmd.y, powertrain.throttle) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  # Connect drive to load
+  connect(powertrain.drive, load.spline_a) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  # Connect damper between load and ground
+  connect(load.spline_b, damper.spline_a) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
+  connect(damper.spline_b, fixed.spline) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 590, "y": 95}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Initial conditions
+  initial powertrain.torque = 0.0
+  initial load.phi = 0.0
+  initial load.w = 0.0
+  powertrain.vehicle_speed = load.w * 0.15
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 4.75,
+        "atol": {"load.w": 0.001, "powertrain.drive.tau": 0.001},
+        "expect": {
+          "initial": {"load.w": 0},
+          "signals": ["load.w", "powertrain.drive.tau"]
+        }
+      }
+    }
+  }
+}
+end
+
+analysis TestPowertrainTransient
+  extends TransientAnalysis(stop = 50.0)
+  model = TestPowertrain()
+end

@@ -1,0 +1,519 @@
+# Brake thermal model with pad-disk radiation coupling and external heat inputs
+#
+# This component models the thermal behavior of a brake system consisting of:
+# - Brake disk: Primary thermal mass with convection and radiation cooling to ambient
+# - Brake pad: Secondary thermal mass with convection cooling only
+# - Radiation coupling: Heat exchange between pad and disk via radiation
+#
+# Heat generation is provided externally via thermal ports for flexible coupling
+# to mechanical friction models.
+#
+# Energy balance equations:
+# Disk: C_disk * dT_disk/dt = Q_heat_disk - Q_conv_disk - Q_rad_disk + Q_rad_pad_disk
+# Pad:  C_pad * dT_pad/dt = Q_heat_pad - Q_conv_pad - Q_rad_pad_disk
+#
+component BrakeThermal
+  # === External heat input ports ===
+  # Heat input to disk (from friction)
+  heat_disk = Node() [{"Dyad": {"placement": {"icon": {"x1": 200, "y1": 950, "x2": 300, "y2": 1050}}}}]
+  # Heat input to pad (from friction)
+  heat_pad = Node() [{"Dyad": {"placement": {"icon": {"x1": 700, "y1": 950, "x2": 800, "y2": 1050}}}}]
+  # === Speed inputs ===
+  # Vehicle speed input [m/s]
+  vehicle_speed = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
+  # Wheel angular speed input [rad/s]
+  wheel_speed = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
+  # === Thermal masses ===
+  disk_mass = ThermalComponents.HeatCapacitor(C = C_disk, T0 = T_disk_init) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 405, "y1": 530, "x2": 505, "y2": 630, "rot": 0}
+      }
+    }
+  }]
+  pad_mass = ThermalComponents.HeatCapacitor(C = C_pad, T0 = T_pad_init) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 405, "y1": 200, "x2": 505, "y2": 300, "rot": 0}
+      }
+    }
+  }]
+  # === Convective cooling ===
+  disk_convection = ThermalComponents.Convection() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 550, "y1": 970, "x2": 650, "y2": 1070, "rot": 0}
+      }
+    }
+  }]
+  pad_convection = ThermalComponents.Convection() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 550, "y1": 310, "x2": 650, "y2": 410, "rot": 0}
+      }
+    }
+  }]
+  # === Radiative cooling (disk to ambient only) ===
+  disk_radiation = ThermalComponents.BodyRadiation(Gr = epsilon_disk * A_disk) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 550, "y1": 710, "x2": 650, "y2": 810, "rot": 0}
+      }
+    }
+  }]
+  # === Pad-disk radiation coupling ===
+  pad_disk_radiation = ThermalComponents.BodyRadiation(Gr = G_rad_pad_disk) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 550, "y1": 510, "x2": 650, "y2": 610, "rot": 0}
+      }
+    }
+  }]
+  # === Ambient temperature boundary ===
+  ambient = ThermalComponents.FixedTemperature(T = T_ambient) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 400, "y1": 410, "x2": 500, "y2": 510, "rot": 0}
+      }
+    }
+  }]
+  # === Convection coefficient calculations ===
+  # Disk convection: h_disk = h_disk_base + k_disk_speed * |wheel_speed|
+  wheel_speed_gain = BlockComponents.Gain(k = k_disk_speed) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 145, "y1": 920, "x2": 245, "y2": 1020, "rot": 0}
+      }
+    }
+  }]
+  disk_h_base_const = BlockComponents.Constant(k = h_disk_base) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 145, "y1": 800, "x2": 245, "y2": 900, "rot": 0}
+      }
+    }
+  }]
+  disk_h_calc = BlockComponents.Add(k1 = 1.0, k2 = 1.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 275, "y1": 830, "x2": 375, "y2": 930, "rot": 0}
+      }
+    }
+  }]
+  # Pad convection: h_pad = h_pad_base + k_pad_speed * |vehicle_speed|
+  vehicle_speed_gain = BlockComponents.Gain(k = k_pad_speed) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 145, "y1": 140, "x2": 245, "y2": 240, "rot": 0}
+      }
+    }
+  }]
+  pad_h_base_const = BlockComponents.Constant(k = h_pad_base) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 145, "y1": 20, "x2": 245, "y2": 120, "rot": 0}
+      }
+    }
+  }]
+  pad_h_calc = BlockComponents.Add(k1 = 1.0, k2 = 1.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 275, "y1": 50, "x2": 375, "y2": 150, "rot": 0}
+      }
+    }
+  }]
+  # Convert to thermal conductances (h * A)
+  disk_conductance = BlockComponents.Product() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 405, "y1": 860, "x2": 505, "y2": 960, "rot": 0}
+      }
+    }
+  }]
+  pad_conductance = BlockComponents.Product() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 405, "y1": 80, "x2": 505, "y2": 180, "rot": 0}
+      }
+    }
+  }]
+  # Constants for surface areas
+  disk_area_const = BlockComponents.Constant(k = A_disk) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 275, "y1": 950, "x2": 375, "y2": 1050, "rot": 0}
+      }
+    }
+  }]
+  pad_area_const = BlockComponents.Constant(k = A_pad) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 275, "y1": 170, "x2": 375, "y2": 270, "rot": 0}
+      }
+    }
+  }]
+  # === Thermal parameters ===
+  # Disk thermal capacity [J/K]
+  parameter C_disk::HeatCapacity = 4000
+  # Pad thermal capacity [J/K]
+  parameter C_pad::HeatCapacity = 1000
+  # Disk initial temperature [K]
+  parameter T_disk_init::Temperature = 293.15
+  # Pad initial temperature [K]
+  parameter T_pad_init::Temperature = 293.15
+  # Ambient temperature [K]
+  parameter T_ambient::Temperature = 293.15
+  # === Heat transfer parameters ===
+  # Base disk convection coefficient [W/(m2.K)]
+  parameter h_disk_base::CoefficientOfHeatTransfer = 20.0
+  # Base pad convection coefficient [W/(m2.K)]
+  parameter h_pad_base::CoefficientOfHeatTransfer = 15.0
+  # Disk convection enhancement factor [W.s/(m3.K)]
+  parameter k_disk_speed::Real = 3.0
+  # Pad convection enhancement factor [W.s/(m3.K)]
+  parameter k_pad_speed::Real = 4.0
+  # Disk surface area for convection [m2]
+  parameter A_disk::Area = 0.15
+  # Pad surface area for convection [m2]
+  parameter A_pad::Area = 0.032
+  # Disk emissivity [-]
+  parameter epsilon_disk::Real = 0.75
+  # Radiative conductance for pad-disk coupling [m2]
+  parameter G_rad_pad_disk::Area = 0.012
+relations
+  # Connect heat inputs to thermal masses
+  connect(heat_disk, disk_mass.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 455, "y": 760}]
+    }
+  }]
+  connect(heat_pad, pad_mass.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 455, "y": 360}]
+    }
+  }]
+  # Build disk convection coefficient: h_disk = h_disk_base + k_disk_speed * wheel_speed
+  connect(wheel_speed, wheel_speed_gain.u) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(disk_h_base_const.y, disk_h_calc.u1) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(wheel_speed_gain.y, disk_h_calc.u2) [{
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 260, "y": 970}, {"x": 260, "y": 910}], "E": 2}]}
+  }]
+  # Build pad convection coefficient: h_pad = h_pad_base + k_pad_speed * vehicle_speed
+  connect(vehicle_speed, vehicle_speed_gain.u) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(pad_h_base_const.y, pad_h_calc.u1) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(vehicle_speed_gain.y, pad_h_calc.u2) [{
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 260, "y": 190}, {"x": 260, "y": 130}], "E": 2}]}
+  }]
+  # Calculate thermal conductances (h * A)
+  connect(disk_h_calc.y, disk_conductance.u1) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(disk_area_const.y, disk_conductance.u2) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 390, "y": 1000}, {"x": 390, "y": 940}], "E": 2}]
+    }
+  }]
+  connect(pad_h_calc.y, pad_conductance.u1) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}]
+  connect(pad_area_const.y, pad_conductance.u2) [{
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 390, "y": 220}, {"x": 390, "y": 160}], "E": 2}]}
+  }]
+  # Connect convective cooling
+  connect(disk_mass.node, disk_convection.solid) [{
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {"S": -1, "M": [], "E": -2},
+        {"S": -2, "M": [{"x": 520, "y": 1020}], "E": 2}
+      ],
+      "junctions": [{"x": 455, "y": 760}, {"x": 520, "y": 760}]
+    }
+  }]
+  connect(pad_mass.node, pad_convection.solid) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 455, "y": 360}]
+    }
+  }]
+  connect(disk_convection.fluid, ambient.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 690, "y": 1020}, {"x": 690, "y": 460}], "E": 2}]
+    }
+  }]
+  connect(pad_convection.fluid, ambient.node) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 690, "y": 360}], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 690, "y": 460}]
+    }
+  }]
+  # Connect disk radiation to ambient
+  connect(disk_mass.node, disk_radiation.node_a) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 455, "y": 760}]
+    }
+  }]
+  connect(disk_radiation.node_b, ambient.node) [{
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 670, "y": 760}, {"x": 670, "y": 660}, {"x": 520, "y": 660}],
+          "E": -1
+        },
+        {"S": -1, "M": [], "E": 2}
+      ],
+      "junctions": [{"x": 520, "y": 460}]
+    }
+  }]
+  # Connect pad-disk radiation
+  connect(pad_mass.node, pad_disk_radiation.node_a) [{
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {"S": -1, "M": [], "E": -2},
+        {"S": -2, "M": [{"x": 530, "y": 560}], "E": 2}
+      ],
+      "junctions": [{"x": 455, "y": 360}, {"x": 530, "y": 360}]
+    }
+  }]
+  connect(disk_mass.node, pad_disk_radiation.node_b) [{
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {"S": -1, "M": [{"x": 520, "y": 760}], "E": -2},
+        {"S": -2, "M": [{"x": 680, "y": 860}, {"x": 680, "y": 560}], "E": 2}
+      ],
+      "junctions": [{"x": 455, "y": 760}, {"x": 520, "y": 860}]
+    }
+  }]
+  # Connect convection coefficient signals
+  connect(disk_conductance.y, disk_convection.Gc) [{"Dyad": {"edges": [{"S": 1, "M": [{"x": 600, "y": 910}], "E": 2}]}}]
+  connect(pad_conductance.y, pad_convection.Gc) [{"Dyad": {"edges": [{"S": 1, "M": [{"x": 600, "y": 130}], "E": 2}]}}]
+metadata {
+  "Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//brake_heat_transfer.svg"}}
+}
+end
+
+# Test component for the refined brake thermal model with speed inputs
+test component BrakeThermalTest_Constant
+  # Brake thermal model instance
+  brake_thermal = BrakeThermal() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 360, "y1": 100, "x2": 460, "y2": 200, "rot": 0}
+      }
+    }
+  }]
+  # Fixed heat inputs to simulate friction
+  disk_heat_input = ThermalComponents.FixedHeatFlow(Q = Q_disk) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 230, "y1": 250, "x2": 330, "y2": 350, "rot": 0}
+      }
+    }
+  }]
+  pad_heat_input = ThermalComponents.FixedHeatFlow(Q = Q_pad) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 230, "y1": 380, "x2": 330, "y2": 480, "rot": 0}
+      }
+    }
+  }]
+  # Speed signal sources
+  vehicle_speed_source = BlockComponents.Constant(k = vehicle_speed) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 170, "y1": 30, "x2": 270, "y2": 130, "rot": 0}
+      }
+    }
+  }]
+  wheel_speed_source = BlockComponents.Constant(k = wheel_speed) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 80, "y1": 200, "x2": 180, "y2": 300, "rot": 0}
+      }
+    }
+  }]
+  # Heat flow to disk
+  parameter Q_disk::HeatFlowRate = 9300
+  # Heat flow to disk
+  parameter Q_pad::HeatFlowRate = 700
+  # Vehicle speed
+  parameter vehicle_speed::Velocity = 25
+  # Wheel speed
+  parameter wheel_speed::AngularVelocity = 83
+relations
+  # Connect heat inputs
+  connect(disk_heat_input.node, brake_thermal.heat_disk) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 385, "y": 300}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(pad_heat_input.node, brake_thermal.heat_pad) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 435, "y": 430}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Connect speed inputs
+  connect(vehicle_speed_source.y, brake_thermal.vehicle_speed) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 330, "y": 80}, {"x": 330, "y": 125}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(wheel_speed_source.y, brake_thermal.wheel_speed) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 320, "y": 250}, {"x": 320, "y": 175}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 1800,
+        "atol": {"brake_thermal.pad_mass.T": 0.1, "brake_thermal.disk_mass.T": 0.1},
+        "expect": {
+          "initial": {"brake_thermal.pad_mass.T": 293.15, "brake_thermal.disk_mass.T": 293.15},
+          "signals": ["brake_thermal.pad_mass.T", "brake_thermal.disk_mass.T"],
+          "final": {"brake_thermal.pad_mass.T": 485.76, "brake_thermal.disk_mass.T": 513.57}
+        }
+      }
+    }
+  }
+}
+end
+
+# Transient analysis of brake thermal model - 1800s simulation
+analysis BrakeThermalAnalysis_Constant
+  extends TransientAnalysis(stop = 1800.0, reltol = 1e-6, abstol = 1e-8)
+  model = BrakeThermalTest_Constant(Q_disk = Q_disk, Q_pad = Q_pad, vehicle_speed = vehicle_speed, wheel_speed = wheel_speed)
+  # Heat flow to disk
+  parameter Q_disk::HeatFlowRate = 9300
+  # Heat flow to disk
+  parameter Q_pad::HeatFlowRate = 700
+  # Vehicle speed
+  parameter vehicle_speed::Velocity = 25
+  # Wheel speed
+  parameter wheel_speed::AngularVelocity = 83
+end
+
+# Test component for brake thermal model with transient heat application (1500s on, then off)
+test component BrakeThermalTest_Step
+  # Brake thermal model instance
+  brake_thermal = BrakeThermal() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 430, "y1": 90, "x2": 530, "y2": 190, "rot": 0}
+      }
+    }
+  }]
+  # Heat input sources with time-dependent behavior
+  # Disk heat: 9300W for first 1500s, then 0W
+  disk_heat_step = BlockComponents.Step(height = -9300, offset = 9300, start_time = 1500.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 80, "y1": 280, "x2": 180, "y2": 320, "rot": 0}
+      }
+    }
+  }]
+  disk_heat_input = ThermalComponents.PrescribedHeatFlow() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 290, "y1": 240, "x2": 390, "y2": 300, "rot": 0}
+      }
+    }
+  }]
+  # Pad heat: 700W for first 1500s, then 0W
+  pad_heat_step = BlockComponents.Step(height = -700, offset = 700, start_time = 1500.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 70, "y1": 420, "x2": 170, "y2": 460, "rot": 0}
+      }
+    }
+  }]
+  pad_heat_input = ThermalComponents.PrescribedHeatFlow() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 290, "y1": 340, "x2": 390, "y2": 400, "rot": 0}
+      }
+    }
+  }]
+  # Speed signal sources (same as original test)
+  vehicle_speed_source = BlockComponents.Constant(k = 6.94) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 260, "y1": 20, "x2": 360, "y2": 120, "rot": 0}
+      }
+    }
+  }]
+  wheel_speed_source = BlockComponents.Constant(k = 64.8) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 110, "y1": 150, "x2": 210, "y2": 250, "rot": 0}
+      }
+    }
+  }]
+relations
+  # Connect heat step signals to prescribed heat flows
+  connect(disk_heat_step.y, disk_heat_input.Q) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 250, "y": 300}, {"x": 250, "y": 270}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(pad_heat_step.y, pad_heat_input.Q) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 240, "y": 440}, {"x": 240, "y": 370}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Connect heat flows to thermal model
+  connect(disk_heat_input.node, brake_thermal.heat_disk) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 455, "y": 270}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(pad_heat_input.node, brake_thermal.heat_pad) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 505, "y": 370}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Connect speed inputs
+  connect(vehicle_speed_source.y, brake_thermal.vehicle_speed) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 70}, {"x": 400, "y": 115}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(wheel_speed_source.y, brake_thermal.wheel_speed) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 200}, {"x": 400, "y": 165}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 5000,
+        "atol": {"brake_thermal.pad_mass.T": 0.1, "brake_thermal.disk_mass.T": 0.1},
+        "expect": {
+          "initial": {"brake_thermal.pad_mass.T": 293.15, "brake_thermal.disk_mass.T": 293.15},
+          "signals": ["brake_thermal.pad_mass.T", "brake_thermal.disk_mass.T"]
+        }
+      }
+    }
+  }
+}
+end
+
+# Transient analysis of brake thermal model with heat cutoff at 1500s
+analysis BrakeThermalAnalysis_Step
+  extends TransientAnalysis(stop = 5000.0, reltol = 1e-6, abstol = 1e-8)
+  model = BrakeThermalTest_Step()
+end
