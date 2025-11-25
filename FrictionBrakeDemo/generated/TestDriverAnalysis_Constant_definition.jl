@@ -6,6 +6,7 @@
 
 using DyadInterface
 
+using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TestDriverAnalysis_ConstantSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :TestDriverAnalysis_Constant
   var"alg"::String = "auto"

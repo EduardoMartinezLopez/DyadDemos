@@ -4,6 +4,10 @@
 ### If you edit this code it is likely to get overwritten.
 ### Instead, update the Dyad source code and regenerate this file
 
+if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
+  include(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
+end
+
 
 include("BrakeThermalTest_Constant_experiment.jl")
 include("BrakeThermalTest_Step_experiment.jl")
