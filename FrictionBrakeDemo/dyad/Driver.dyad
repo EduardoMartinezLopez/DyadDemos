@@ -1,78 +1,156 @@
 # Driver model that generates throttle and brake commands from speed reference and actual speed
 component Driver
   # Input: reference speed
-  speed_ref = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
+  speed_ref = RealInput() {^speed_ref}
   # Input: actual speed
-  speed_act = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
+  speed_act = RealInput() {^speed_act}
   # Output: throttle command (0-1)
-  throttle = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
+  throttle = RealOutput() {^throttle}
   # Output: brake command (0-1)
-  brake = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
-
+  brake = RealOutput() {^brake}
+  # Single PID controller with symmetric output range
+  speed_pid = BlockComponents.LimPID(k = k, Ti = Ti, Td = Td, y_max = 1.0, y_min = -1.0, wp = 1.0, wd = 0.0, Ni = 0.9, Nd = 10.0, k_ff = 0.0) {^speed_pid}
+  # Feed-forward input (not used)
+  ff_input = BlockComponents.Constant(k = 0.0) {^ff_input}
   # Proportional gain for PID
   parameter k::Real = 0.5
   # Integral time constant for PID
   parameter Ti::Real = 2
   # Derivative time constant for PID
   parameter Td::Real = 0.1
-  
-  # Single PID controller with symmetric output range
-  speed_pid = BlockComponents.LimPID(
-    k = k,
-    Ti = Ti,
-    Td = Td,
-    y_max = 1.0,
-    y_min = -1.0,
-    wp = 1.0,
-    wd = 0.0,
-    Ni = 0.9,
-    Nd = 10.0,
-    k_ff = 0.0
-  )
-  
-  # Feed-forward input (not used)
-  ff_input = BlockComponents.Constant(k = 0.0)
-  
 relations
   # Connect PID inputs
-  connect(speed_ref, speed_pid.u_s)
-  connect(speed_act, speed_pid.u_m)
-  connect(ff_input.y, speed_pid.u_ff)
-  
+  connect(speed_ref, speed_pid.u_s) {^id7}
+  connect(speed_act, speed_pid.u_m) {^id8}
+  connect(ff_input.y, speed_pid.u_ff) {^id9}
   # Split PID output into throttle and brake
   # Positive output -> throttle, negative output -> brake
   throttle = ifelse(speed_pid.y > 0, speed_pid.y, 0)
   brake = ifelse(speed_pid.y < 0, -speed_pid.y, 0)
-metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//driver.svg"}}}
+metadata {
+  "Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//driver.svg"}},
+  "_links": {
+    "speed_ref": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -50, "y1": 220, "x2": 50, "y2": 320, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_act": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -60, "y1": 660, "x2": 40, "y2": 760, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 700, "x2": 1050, "y2": 800, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 960, "y1": 680, "x2": 1060, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "brake": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 200, "x2": 1050, "y2": 300, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 970, "y1": 220, "x2": 1070, "y2": 320, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_pid": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 570, "y1": 320, "x2": 670, "y2": 420, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ff_input": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 520, "x2": 540, "y2": 620, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 352.5, "y": 270}, {"x": 352.5, "y": 347}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id8": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 380, "y": 710}, {"x": 380, "y": 393}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 640, "y": 570}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
 end
 
 # TEST HARNESS - Step response test
 test component TestDriver_Constant
   # Step input for reference speed: 0 m/s to 20 m/s at t=1s
-  speed_ref_source = BlockComponents.Step(
-    height = 20.0,
-    offset = 0.0,
-    start_time = 1.0
-  )
-  
+  speed_ref_source = BlockComponents.Step(height = 20.0, offset = 0.0, start_time = 1.0) {^speed_ref_source}
+  # drag coefficient
+  # Driver model
+  driver = Driver() {^driver}
   # Simulated vehicle dynamics: simple first-order response
   # Acceleration = (throttle - brake) * max_accel - drag
   variable vehicle_speed::Real
-  parameter max_accel::Real = 5.0  # m/s^2
-  parameter drag_coeff::Real = 0.2  # drag coefficient
-  
-  # Driver model
-  driver = Driver()
-  
+  parameter max_accel::Real = 5.0
+  # m/s^2
+  parameter drag_coeff::Real = 0.2
 relations
   # Vehicle dynamics: simple model
   # acceleration = (throttle - brake) * max_accel - drag * speed
   der(vehicle_speed) = (driver.throttle - driver.brake) * max_accel - drag_coeff * vehicle_speed
   initial vehicle_speed = 0.0
-  
   # Connect driver inputs directly
-  connect(speed_ref_source.y, driver.speed_ref)
+  connect(speed_ref_source.y, driver.speed_ref) {^id3}
   driver.speed_act = vehicle_speed
+metadata {
+  "_links": {
+    "speed_ref_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 310, "y1": 450, "x2": 410, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 590, "y1": 460, "x2": 690, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id3": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 500}, {"x": 500, "y": 485}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
 end
 
 analysis TestDriverAnalysis_Constant
@@ -83,40 +161,71 @@ end
 # TEST HARNESS - Speed up and slow down to test both throttle and brake
 test component TestDriverWithBraking
   # Multi-step reference: 0 -> 25 -> 10 m/s
-  step1 = BlockComponents.Step(
-    height = 25.0,
-    offset = 0.0,
-    start_time = 1.0
-  )
-  
-  step2 = BlockComponents.Step(
-    height = -15.0,
-    offset = 0.0,
-    start_time = 6.0
-  )
-  
-  sum_steps = BlockComponents.Add()
-  
+  step1 = BlockComponents.Step(height = 25.0, offset = 0.0, start_time = 1.0) {^step1}
+  step2 = BlockComponents.Step(height = -15.0, offset = 0.0, start_time = 6.0) {^step2}
+  sum_steps = BlockComponents.Add() {^sum_steps}
+  # drag coefficient
+  # Driver model
+  driver = Driver() {^driver}
   # Simulated vehicle dynamics
   variable vehicle_speed::Real
-  parameter max_accel::Real = 5.0  # m/s^2
-  parameter drag_coeff::Real = 0.2  # drag coefficient
-  
-  # Driver model
-  driver = Driver()
-  
+  parameter max_accel::Real = 5.0
+  # m/s^2
+  parameter drag_coeff::Real = 0.2
 relations
   # Combine steps to create speed profile: 0 -> 25 at t=1s, then 25 -> 10 at t=6s
-  connect(step1.y, sum_steps.u1)
-  connect(step2.y, sum_steps.u2)
-  
+  connect(step1.y, sum_steps.u1) {^id5}
+  connect(step2.y, sum_steps.u2) {^id6}
   # Vehicle dynamics
   der(vehicle_speed) = (driver.throttle - driver.brake) * max_accel - drag_coeff * vehicle_speed
   initial vehicle_speed = 0.0
-  
   # Connect driver
-  connect(sum_steps.y, driver.speed_ref)
+  connect(sum_steps.y, driver.speed_ref) {^id7}
   driver.speed_act = vehicle_speed
+metadata {
+  "_links": {
+    "step1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "step2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 140, "x2": 120, "y2": 240, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sum_steps": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 160, "y1": 50, "x2": 260, "y2": 150, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 295, "y1": 75, "x2": 395, "y2": 175, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id6": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 140, "y": 190}, {"x": 140, "y": 130}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
 end
 
 analysis TestDriverAnalysis_Braking
