@@ -2,10 +2,13 @@
 
 This library provides demo models for a vehicle friction brake system.  
 There are individual subsystems for the friction brake and the brake thermal 
-model.  A test model including the braking system integrated with a simple vehicle 
-representation is provided in `VehicleCycleTest.dyad`.  The cyle provides a repeating 
-series of acceleration and braking transients to drive the brake thermal dynamics.  The 
-script `simulate_vehicle_cycle_test.jl` in the `scripts` folder can be run to execute the
+model. 
+
+A test model including the braking system integrated with a simple vehicle 
+representation is provided in **`VehicleCycleTest.dyad`**.  The cyle provides a repeating 
+series of acceleration and braking transients to drive the brake thermal dynamics.  
+
+The script **`simulate_vehicle_cycle_test.jl`** in the `scripts/` folder can be run to execute the
 model and plot relevant results.
   
 ## Getting Started
