@@ -103,7 +103,7 @@ prob = ODEProblem(model, [], (0.0, 14400))
 running_plot1 = textlabel!(ax, Point2f(0.5, 0.5); text = "Simulating...", space = :relative, fontsize = 16)
 running_plot2 = poly!([Rect2f(0.0, 0.0, 1.0, 1.0)], color = (:gray, 0.5), space = :relative)
 translate!(running_plot2, 0, 0, 0)
-
+display(fig)
 running_plot1.visible[] = false
 running_plot2.visible[] = false
 
@@ -111,6 +111,8 @@ Makie.Observables.onany(textboxes_values...) do vals...
 
     running_plot1.visible[] = true
     running_plot2.visible[] = true
+    yield()
+    sleep(0.01)
 
     sol = @time begin
         newprob = ModelingToolkit.remake(prob; p = [model.T_oven => vals[1], model.M_turkey => vals[2], model.rho_turkey => vals[3], model.R_turkey => vals[4]])
