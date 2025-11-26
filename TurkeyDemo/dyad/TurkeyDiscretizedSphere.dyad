@@ -1,0 +1,167 @@
+# Discretized spherical turkey thermal model component
+# Implementation with array variables with thermal connector at surface
+component TurkeyDiscretizedSphere
+  # Thermal connector for outermost element
+  surface = Node() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}}}}]
+  # Structural parameter for discretization
+  structural parameter N::Integer = 10
+  structural parameter Np1::Integer = 11
+  # Turkey properties
+  parameter M::Mass = 5.0
+  parameter rho::Density = 1050.0
+  parameter cp::SpecificHeatCapacity = 3500.0
+  parameter k::ThermalConductivity = 0.5
+  parameter T_init::Temperature = 277.0
+  # Physical constants
+  parameter pi::Real = 3.14159265359
+  # Geometry
+  parameter R::Length = (3 * M / (4 * pi * rho)) ^ (1 / 3)
+  parameter dr::Length = R / N
+  # Variables
+  variable T::Temperature[N]
+  variable Q_cond::HeatFlowRate[Np1]
+  variable r::Length[Np1]
+  variable r_mid::Length[N]
+  variable A_interface::Area[Np1]
+  variable V_shell::Volume[N]
+  variable m_shell::Mass[N]
+  # Output variables
+  # Temperature in deg F
+  variable T_degF::Real[N]
+relations
+  # Compute shell boundaries
+  for i in 1:Np1
+    r[i] = (i - 1) * dr
+  end
+  # Compute shell properties
+  for i in 1:N
+    r_mid[i] = (r[i] + r[i + 1]) / 2
+    A_interface[i] = 4 * pi * r[i] ^ 2
+    V_shell[i] = (4 / 3) * pi * (r[i + 1] ^ 3 - r[i] ^ 3)
+    m_shell[i] = rho * V_shell[i]
+  end
+  A_interface[Np1] = 4 * pi * r[Np1] ^ 2
+  # Conduction between shells (Fourier's law)
+  Q_cond[1] = 0
+  # No heat flow at center
+  for i in 2:N
+    Q_cond[i] = k * A_interface[i] * (T[i - 1] - T[i]) / dr
+  end
+  Q_cond[Np1] = k * A_interface[Np1] * (T[N - 1] - T[N]) / dr
+  # Energy balance for each shell
+  # Center shell
+  m_shell[1] * cp * der(T[1]) = Q_cond[1] - Q_cond[2]
+  # Interior shells
+  for i in 2:(N - 1)
+    m_shell[i] * cp * der(T[i]) = Q_cond[i] - Q_cond[i + 1]
+  end
+  # Surface shell - heat enters from interior and from surface connector
+  # Note: In thermal connector convention, positive surface.Q means heat leaving
+  # So we ADD surface.Q when it's negative (heat entering)
+  m_shell[N] * cp * der(T[N]) = Q_cond[N] + surface.Q
+  # Surface connector relations
+  surface.T = T[N]
+  # Initial conditions
+  for i in 1:N
+    initial T[i] = T_init
+  end
+  for i in 1:N
+    T_degF[i] = 9 / 5 * (T[i] - 273.15) + 32
+  end
+metadata {"Dyad": {"icons": {"default": "dyad://TurkeyDemo/turkey.svg"}}}
+end
+
+# Test harness with convection and radiation components
+test component TurkeySphereTest
+  # Turkey body
+  turkey = TurkeyDiscretizedSphere(N = 10, Np1 = 11, M = M_turkey, T_init = 277.0) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 305, "y1": 235, "x2": 405, "y2": 335, "rot": 0}
+      }
+    }
+  }]
+  # Oven environment
+  oven = ThermalComponents.FixedTemperature(T = T_oven) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 240, "x2": 120, "y2": 340, "rot": 0}
+      }
+    }
+  }]
+  # Convection heat transfer with signal input
+  convection = ThermalComponents.Convection() [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 260, "y1": 130, "x2": 160, "y2": 230, "rot": 0}
+      }
+    }
+  }]
+  Gc_signal = BlockComponents.Constant(k = Gc_conv) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 40, "x2": 120, "y2": 140, "rot": 0}
+      }
+    }
+  }]
+  # Radiation heat transfer
+  radiation = ThermalComponents.BodyRadiation(Gr = Gr_rad) [{
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 160, "y1": 340, "x2": 260, "y2": 440, "rot": 0}
+      }
+    }
+  }]
+  # Parameters
+  parameter T_oven::Temperature = 450.0
+  parameter h::CoefficientOfHeatTransfer = 15.0
+  parameter epsilon::Real = 0.85
+  parameter M_turkey::Mass = 5.0
+  parameter rho_turkey::Density = 1050.0
+  parameter pi::Real = 3.14159265359
+  # Compute turkey geometry
+  parameter R_turkey::Length = (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3)
+  parameter A_surface::Area = 4 * pi * R_turkey ^ 2
+  parameter Gc_conv::ThermalConductance = h * A_surface
+  parameter Gr_rad::Real = epsilon * A_surface
+relations
+  # Connect convection: oven (fluid) -> turkey surface (solid)
+  connect(oven.node, convection.fluid) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 140, "y": 290}, {"x": 140, "y": 180}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(convection.solid, turkey.surface) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 290, "y": 180}, {"x": 290, "y": 280}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(Gc_signal.y, convection.Gc) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 210, "y": 90}], "E": 2}],
+      "renderStyle": "standard"
+    }
+  }]
+  # Connect radiation: oven -> turkey surface
+  connect(oven.node, radiation.node_a) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 140, "y": 390}], "E": 2}],
+      "junctions": [{"x": 140, "y": 290}],
+      "renderStyle": "standard"
+    }
+  }]
+  connect(radiation.node_b, turkey.surface) [{
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 290, "y": 390}], "E": -1}, {"S": -1, "M": [], "E": 2}],
+      "junctions": [{"x": 290, "y": 280}],
+      "renderStyle": "standard"
+    }
+  }]
+end
+
+analysis TurkeySphereCooking
+  extends TransientAnalysis(stop = 14400.0, saveat = 60.0)
+  model = TurkeySphereTest()
+end
