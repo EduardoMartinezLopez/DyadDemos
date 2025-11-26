@@ -1,6 +1,7 @@
 name = "TurkeyDemo"
 uuid = "03da8933-3897-4a09-a9ba-0cf9ce1f70ee"
-authors = [" <>"]
+authors = ["John Batteh <john.batteh@juliahub.com>"]
+license = "Dyad Source-Available"
 version = "0.1.0"
 
 [deps]
@@ -32,3 +33,6 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["CSV", "DataFrames", "Plots", "Test"]
+
+[workspace]
+projects = ["scripts"]
