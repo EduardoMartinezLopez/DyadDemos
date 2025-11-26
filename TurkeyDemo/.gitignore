@@ -4,3 +4,5 @@
 *.jl.mem
 /Manifest*.toml
 /docs/Manifest*.toml
+/scripts/Manifest*.toml
+.claude/
