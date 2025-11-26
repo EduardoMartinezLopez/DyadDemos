@@ -10,7 +10,12 @@ using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
+if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
+  include(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
+end
 
 
+@testset "`TurkeyDemo`" begin
 include("TurkeyDiscretizedSphere_test.jl")
 include("TurkeySphereTest_test.jl")
+end

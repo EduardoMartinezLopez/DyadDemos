@@ -6,11 +6,15 @@
 
 using ModelingToolkit
 import Markdown
+import Moshi
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
+if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
+  include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
+end
 
 import BlockComponents
 import DyadInterface
