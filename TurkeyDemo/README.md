@@ -2,7 +2,7 @@
   
 ## Interactive Dashboard
 
-![Dashboard Screenshot](./assets/dashboard.png)
+<img src="./assets/dashboard.png" width="500"/>
 
 To launch an interactive turkey cooking simulation dashboard with adjustable parameters:
 
