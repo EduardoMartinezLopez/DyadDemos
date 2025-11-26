@@ -1,5 +1,8 @@
 # Interactive Turkey Cooking Simulation Dashboard
 # Visualizes temperature over time and allows parameter adjustment
+using Pkg
+Pkg.activate(@__DIR__)
+Pkg.instantiate()
 
 using TurkeyDemo
 using ModelingToolkit, DyadInterface
@@ -47,7 +50,7 @@ point_of_cooking = lift(res_obs) do sol
 end
 
 scatter!(ax, point_of_cooking; color = Makie.Cycled(4), markersize = 10, label = "Fully Cooked!")
-axislegend(ax)
+axislegend(ax; orientation = :horizontal)
 
 # ============================================================================
 # Parameter Controls
