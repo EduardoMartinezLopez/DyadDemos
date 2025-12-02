@@ -10,12 +10,12 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct BrakeThermalAnalysis_StepSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :BrakeThermalAnalysis_Step
   var"alg"::String = "auto"
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 5000
-  var"abstol"::Float64 = 1e-8
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"start"::Real = 0
+  var"stop"::Real = 5000
+  var"abstol"::Real = 1e-8
+  var"reltol"::Real = 0.000001
+  var"saveat"::Real = 0
+  var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
   # Test component for brake thermal model with transient heat application (1500s on, then off)
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.BrakeThermalTest_Step(; name=:BrakeThermalTest_Step)

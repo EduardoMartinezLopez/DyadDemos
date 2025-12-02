@@ -10,12 +10,12 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TestDriverAnalysis_BrakingSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :TestDriverAnalysis_Braking
   var"alg"::String = "auto"
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 12
-  var"abstol"::Float64 = 0.000001
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"start"::Real = 0
+  var"stop"::Real = 12
+  var"abstol"::Real = 0.000001
+  var"reltol"::Real = 0.000001
+  var"saveat"::Real = 0
+  var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
   # TEST HARNESS - Speed up and slow down to test both throttle and brake
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.TestDriverWithBraking(; name=:TestDriverWithBraking)

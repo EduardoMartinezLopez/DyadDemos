@@ -10,12 +10,12 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct SimpleVehicleTestAnalysis_CoastDownSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :SimpleVehicleTestAnalysis_CoastDown
   var"alg"::String = "auto"
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 100
-  var"abstol"::Float64 = 0.000001
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"start"::Real = 0
+  var"stop"::Real = 100
+  var"abstol"::Real = 0.000001
+  var"reltol"::Real = 0.000001
+  var"saveat"::Real = 0
+  var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
   # Test case for SimpleVehicleModel with constant input torque
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.SimpleVehicleTest_CoastDown(; name=:SimpleVehicleTest_CoastDown)

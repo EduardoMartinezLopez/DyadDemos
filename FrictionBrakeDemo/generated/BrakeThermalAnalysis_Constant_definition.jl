@@ -10,21 +10,21 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct BrakeThermalAnalysis_ConstantSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :BrakeThermalAnalysis_Constant
   var"alg"::String = "auto"
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 1800
-  var"abstol"::Float64 = 1e-8
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"start"::Real = 0
+  var"stop"::Real = 1800
+  var"abstol"::Real = 1e-8
+  var"reltol"::Real = 0.000001
+  var"saveat"::Real = 0
+  var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
   # Heat flow to disk
-  var"Q_disk"::Float64 = 9300
+  var"Q_disk"::Real = 9300
   # Heat flow to disk
-  var"Q_pad"::Float64 = 700
+  var"Q_pad"::Real = 700
   # Vehicle speed
-  var"vehicle_speed"::Float64 = 25
+  var"vehicle_speed"::Real = 25
   # Wheel speed
-  var"wheel_speed"::Float64 = 83
+  var"wheel_speed"::Real = 83
   # Test component for the refined brake thermal model with speed inputs
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.BrakeThermalTest_Constant(; name=:BrakeThermalTest_Constant)
 end

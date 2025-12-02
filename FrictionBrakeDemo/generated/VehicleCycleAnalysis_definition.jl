@@ -10,12 +10,12 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct VehicleCycleAnalysisSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :VehicleCycleAnalysis
   var"alg"::String = "auto"
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 1000
-  var"abstol"::Float64 = 0.000001
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"start"::Real = 0
+  var"stop"::Real = 1000
+  var"abstol"::Real = 0.000001
+  var"reltol"::Real = 0.000001
+  var"saveat"::Real = 0
+  var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
   # Simulation experiment for the brake thermal system assembly with a vehicle on a transient cycle
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.VehicleCycleTest(; name=:VehicleCycleTest)

@@ -60,8 +60,8 @@ Actual normal force applied                         | N  |
   ### Symbolic Parameters
   append!(__params, @parameters (R_effective::Real = R_effective), [description = "Geometric parameters
 Effective friction radius [m]"])
-  append!(__params, @parameters (N_surfaces::Int64 = N_surfaces), [description = "Number of friction surfaces (1=single-sided, 2=double-sided)"])
-  append!(__params, @parameters (N_wheels::Int64 = N_wheels), [description = "Number of wheels with identical brakes"])
+  append!(__params, @parameters (N_surfaces::Int = N_surfaces), [description = "Number of friction surfaces (1=single-sided, 2=double-sided)"])
+  append!(__params, @parameters (N_wheels::Int = N_wheels), [description = "Number of wheels with identical brakes"])
   append!(__params, @parameters (F_normal_max::Real = F_normal_max), [description = "Actuation parameter
 Maximum normal force per wheel [N]"])
   append!(__params, @parameters (μ_0::Real = μ_0), [description = "Material properties
