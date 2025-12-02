@@ -1,0 +1,5 @@
+[deps]
+DyadHarness = "da61bb4d-1a52-452d-9bcc-d5d66d72da1d"
+GitHubActions = "6b79fd1a-b13a-48ab-b6b0-aaee1fee41df"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+NodeJS_22_jll = "8fca9ca2-e7a1-5ccf-8c05-43be5a78664f"
