@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TurkeySphereTest(; name, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
+   TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
 
 Test harness with convection and radiation components
 
@@ -13,6 +13,7 @@ Test harness with convection and radiation components
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
+| `N`         |                          | --  |   10 |
 | `T_oven`         | Parameters                         | K  |   450 |
 | `h`         |                          | W/(m2.K)  |   15 |
 | `epsilon`         |                          | --  |   0.85 |
@@ -24,7 +25,7 @@ Test harness with convection and radiation components
 | `Gc_conv`         |                          | W/K  |   h * A_surface |
 | `Gr_rad`         |                          | --  |   epsilon * A_surface |
 """
-@component function TurkeySphereTest(; name, T_oven=450, h=15, epsilon=0.85, M_turkey=5, rho_turkey=1050, pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface)
+@component function TurkeySphereTest(; name, N=10, T_oven=450, h=15, epsilon=0.85, M_turkey=5, rho_turkey=1050, pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface)
   __params = Any[]
   __vars = Any[]
   __systems = System[]
@@ -51,7 +52,7 @@ Test harness with convection and radiation components
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, Np1=11, M=M_turkey, T_init=277))
+  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, Np1=N + 1, M=M_turkey, T_init=277))
   push!(__systems, @named oven = ThermalComponents.FixedTemperature(T=T_oven))
   push!(__systems, @named convection = ThermalComponents.Convection())
   push!(__systems, @named Gc_signal = BlockComponents.Constant(k=Gc_conv))
