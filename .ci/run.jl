@@ -1,7 +1,9 @@
-using Pkg
 using Logging: global_logger
 using GitHubActions: GitHubActionsLogger, group
 get(ENV, "GITHUB_ACTIONS", "false") == "true" && global_logger(GitHubActionsLogger())
+
+import Pkg
+import DyadHarness
 
 # Gives us the ability to report what succeeded and what failed
 include("github_utils.jl")
@@ -24,7 +26,9 @@ for folder in folders
         catch e
             @error "Failed to instantiate project" error = e
             post_status(name = "$(basename(folder))/instantiate", type = "failure")
-            continue
+            return
+        finally
+            Pkg.activate(@__DIR__)
         end
 
         @info "Running tests"
@@ -34,6 +38,9 @@ for folder in folders
         catch e
             @error "Tests errored" error = e
             post_status(name = "$(basename(folder))/test", type = "error")
+            return
+        finally
+            Pkg.activate(@__DIR__)
         end
 
         @info "Compiling with latest `dyad-lang`"
@@ -43,7 +50,7 @@ for folder in folders
         if compile_result == false
             @error "Compilation failed"
             post_status(name = "$(basename(folder))/dyad-compile", type = "failure")
-            continue
+            return
         end
 
         @info "Running Dyad doc-gen"
@@ -53,7 +60,6 @@ for folder in folders
         if docgen_result == false
             @error "Doc-gen failed"
             post_status(name = "$(basename(folder))/dyad-doc-gen", type = "failure")
-            continue
         end
 
         @info "All steps succeeded"
