@@ -49,6 +49,8 @@ component ThermalHouse
   parameter U_door::CoefficientOfHeatTransfer = 1.2
   # Window solar heat gain coefficient
   parameter SHGC::Real = 0.6  
+  # Window orientation factor for sun-facing windows
+  parameter f_window::Real = 0.7
   
   # Thermal mass (air + structure)
   parameter rho_air::Density = 1.2
@@ -136,7 +138,7 @@ relations
   
   # Connect input signals to heat flow components
   connect(heater.Q, Q_heater)
-  solar_input.Q = solar_irradiance * area_window * SHGC
+  solar_input.Q = solar_irradiance * area_window * f_window * SHGC
   internal_gains.Q = Q_internal
   
   # Connect ambient temperature input to boundary condition
