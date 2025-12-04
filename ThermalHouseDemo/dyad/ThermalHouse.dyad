@@ -50,7 +50,7 @@ component ThermalHouse
   # Window solar heat gain coefficient
   parameter SHGC::Real = 0.6  
   # Window orientation factor for sun-facing windows
-  parameter f_window::Real = 0.7
+  parameter f_window::Real = 0.3
   
   # Thermal mass (air + structure)
   parameter rho_air::Density = 1.2
