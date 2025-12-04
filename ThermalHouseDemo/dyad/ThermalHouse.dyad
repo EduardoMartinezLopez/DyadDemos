@@ -6,6 +6,7 @@ component ThermalHouse
   # Input connectors for external control
   Q_heater = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
   solar_irradiance = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": -50, "x2": 550, "y2": 50, "rot": 90}}}}]
+  T_ambient = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
   
   # Output signal for interior temperature
   T_interior = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
@@ -106,7 +107,6 @@ component ThermalHouse
   
   # Temperature references
   parameter T_initial::Temperature = 293.15
-  parameter T_ambient::Temperature = 273.15
   
   variable T_wall::Temperature(guess=283.15)
   
@@ -128,7 +128,7 @@ component ThermalHouse
   wall_loss = ThermalComponents.ThermalConductor(G=G_wall)
   wall_convection = ThermalComponents.ThermalConductor(G=G_conv)
   
-  ambient = ThermalComponents.FixedTemperature(T=T_ambient)
+  ambient = ThermalComponents.PrescribedTemperature()
   
 relations
   # Connect thermal mass to interior node
@@ -138,6 +138,9 @@ relations
   connect(heater.Q, Q_heater)
   solar_input.Q = solar_irradiance * area_window * SHGC
   internal_gains.Q = Q_internal
+  
+  # Connect ambient temperature input to boundary condition
+  connect(ambient.T, T_ambient)
   
   # Connect heat sources
   connect(solar_input.node, interior)
@@ -183,7 +186,6 @@ test component TestThermalHouse
   
   house = ThermalHouse(
     T_initial=T_indoor,
-    T_ambient=T_outdoor,
     Q_people=100.0,
     Q_lighting=200.0,
     Q_appliances=200.0
@@ -192,10 +194,12 @@ test component TestThermalHouse
   # Signal sources for inputs
   heater_signal = BlockComponents.Constant(k=Q_heater)
   solar_signal = BlockComponents.Constant(k=solar_irrad)
+  ambient_signal = BlockComponents.Constant(k=T_outdoor)
   
 relations
   connect(heater_signal.y, house.Q_heater)
   connect(solar_signal.y, house.solar_irradiance)
+  connect(ambient_signal.y, house.T_ambient)
   
   guess house.wall_loss.ΔT = 10.0
 end
