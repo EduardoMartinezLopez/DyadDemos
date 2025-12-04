@@ -1,0 +1,105 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background -->
+  <rect width="200" height="200" fill="#f8f9fa"/>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#ff4444"/>
+    </marker>
+  </defs>
+  
+  <!-- Sun -->
+  <circle cx="35" cy="35" r="12" fill="#ffd700"/>
+  <!-- Sun rays -->
+  <line x1="35" y1="20" x2="35" y2="12" stroke="#ffd700" stroke-width="2"/>
+  <line x1="35" y1="50" x2="35" y2="58" stroke="#ffd700" stroke-width="2"/>
+  <line x1="20" y1="35" x2="12" y2="35" stroke="#ffd700" stroke-width="2"/>
+  <line x1="50" y1="35" x2="58" y2="35" stroke="#ffd700" stroke-width="2"/>
+  <line x1="24" y1="24" x2="18" y2="18" stroke="#ffd700" stroke-width="2"/>
+  <line x1="46" y1="46" x2="52" y2="52" stroke="#ffd700" stroke-width="2"/>
+  <line x1="46" y1="24" x2="52" y2="18" stroke="#ffd700" stroke-width="2"/>
+  <line x1="24" y1="46" x2="18" y2="52" stroke="#ffd700" stroke-width="2"/>
+  
+  <!-- House structure -->
+  <!-- Roof -->
+  <polygon points="100,55 170,95 30,95" fill="#8b4513" stroke="#5d2f0e" stroke-width="2"/>
+  
+  <!-- Main wall -->
+  <rect x="35" y="95" width="130" height="90" fill="#d4a574" stroke="#8b7355" stroke-width="2"/>
+  
+  <!-- Door -->
+  <rect x="85" y="135" width="30" height="50" fill="#6b4423" stroke="#4a2f18" stroke-width="1.5"/>
+  <circle cx="110" cy="160" r="2" fill="#ffd700"/>
+  
+  <!-- Windows -->
+  <rect x="50" y="110" width="25" height="25" fill="#87ceeb" stroke="#4682b4" stroke-width="1.5"/>
+  <line x1="62.5" y1="110" x2="62.5" y2="135" stroke="#4682b4" stroke-width="1"/>
+  <line x1="50" y1="122.5" x2="75" y2="122.5" stroke="#4682b4" stroke-width="1"/>
+  
+  <rect x="125" y="110" width="25" height="25" fill="#87ceeb" stroke="#4682b4" stroke-width="1.5"/>
+  <line x1="137.5" y1="110" x2="137.5" y2="135" stroke="#4682b4" stroke-width="1"/>
+  <line x1="125" y1="122.5" x2="150" y2="122.5" stroke="#4682b4" stroke-width="1"/>
+  
+  <!-- Heater (radiator/HVAC unit) -->
+  <rect x="130" y="155" width="20" height="25" fill="#e0e0e0" stroke="#666" stroke-width="1.5" rx="2"/>
+  <!-- Radiator fins -->
+  <line x1="133" y1="158" x2="133" y2="177" stroke="#999" stroke-width="1"/>
+  <line x1="137" y1="158" x2="137" y2="177" stroke="#999" stroke-width="1"/>
+  <line x1="140" y1="158" x2="140" y2="177" stroke="#999" stroke-width="1"/>
+  <line x1="143" y1="158" x2="143" y2="177" stroke="#999" stroke-width="1"/>
+  <line x1="147" y1="158" x2="147" y2="177" stroke="#999" stroke-width="1"/>
+  <!-- Heat output from heater -->
+  <path d="M 135 148 Q 135 143, 133 140" fill="none" stroke="#ff6600" stroke-width="1.5"/>
+  <path d="M 140 148 Q 140 143, 138 139" fill="none" stroke="#ff6600" stroke-width="1.5"/>
+  <path d="M 145 148 Q 145 143, 143 140" fill="none" stroke="#ff6600" stroke-width="1.5"/>
+  
+  <!-- Thermometer -->
+  <!-- Bulb -->
+  <circle cx="55" cy="170" r="5" fill="#d32f2f" stroke="#b71c1c" stroke-width="1"/>
+  <!-- Tube -->
+  <rect x="52" y="150" width="6" height="20" fill="#e8e8e8" stroke="#999" stroke-width="1" rx="3"/>
+  <!-- Mercury column -->
+  <rect x="53.5" y="160" width="3" height="10" fill="#d32f2f" rx="1.5"/>
+  <!-- Scale marks -->
+  <line x1="58" y1="153" x2="61" y2="153" stroke="#666" stroke-width="0.8"/>
+  <line x1="58" y1="157" x2="60" y2="157" stroke="#666" stroke-width="0.8"/>
+  <line x1="58" y1="161" x2="61" y2="161" stroke="#666" stroke-width="0.8"/>
+  <line x1="58" y1="165" x2="60" y2="165" stroke="#666" stroke-width="0.8"/>
+  <line x1="58" y1="169" x2="61" y2="169" stroke="#666" stroke-width="0.8"/>
+  
+  <!-- Controller (thermostat unit) -->
+  <!-- Controller box -->
+  <rect x="65" y="155" width="28" height="20" fill="#2c3e50" stroke="#1a252f" stroke-width="1.5" rx="2"/>
+  <!-- Display screen -->
+  <rect x="68" y="158" width="22" height="8" fill="#4CAF50" stroke="#388E3C" stroke-width="0.8" rx="1"/>
+  <!-- Digital display text -->
+  <text x="79" y="164" font-family="monospace" font-size="5" fill="#000" text-anchor="middle">20°C</text>
+  <!-- Control buttons -->
+  <circle cx="73" cy="170" r="1.5" fill="#e74c3c" stroke="#c0392b" stroke-width="0.5"/>
+  <circle cx="79" cy="170" r="1.5" fill="#3498db" stroke="#2980b9" stroke-width="0.5"/>
+  <circle cx="85" cy="170" r="1.5" fill="#95a5a6" stroke="#7f8c8d" stroke-width="0.5"/>
+  
+  <!-- Signal line from thermometer to controller (sensor reading) -->
+  <path d="M 60 165 L 65 165" 
+        fill="none" stroke="#2196F3" stroke-width="1.2" stroke-dasharray="2,2"/>
+  
+  <!-- Signal arrows -->
+  <polygon points="65,165 67,163 67,167" fill="#2196F3"/>
+  
+  <!-- Heat losses represented as wavy heat lines -->
+  <!-- Roof heat loss (upward) -->
+  <path d="M 85 75 Q 87 68, 85 63 Q 83 58, 85 53" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 100 70 Q 102 63, 100 58 Q 98 53, 100 48" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 115 75 Q 117 68, 115 63 Q 113 58, 115 53" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Left wall heat loss -->
+  <path d="M 35 120 Q 28 122, 23 120 Q 18 118, 13 120" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 35 135 Q 28 137, 23 135 Q 18 133, 13 135" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 35 150 Q 28 152, 23 150 Q 18 148, 13 150" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Right wall heat loss -->
+  <path d="M 165 120 Q 172 122, 177 120 Q 182 118, 187 120" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 165 135 Q 172 137, 177 135 Q 182 133, 187 135" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+  <path d="M 165 150 Q 172 152, 177 150 Q 182 148, 187 150" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.7"/>
+</svg>
