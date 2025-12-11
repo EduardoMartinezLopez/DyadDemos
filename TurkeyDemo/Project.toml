@@ -17,8 +17,8 @@ RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 
 [compat]
-BlockComponents = "2.8.1"
-DyadEcosystemDependencies = "=0.10.5"
+BlockComponents = "3.0.2"
+DyadEcosystemDependencies = "=0.10.6"
 Markdown = "1"
 ThermalComponents = "1.0.0"
 
