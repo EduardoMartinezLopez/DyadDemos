@@ -7,4 +7,4 @@ See the `scripts` folder for the code used in the webinar.
 There are multiple files in there, with annotations and comments,
 that show how to use Makie to create things with Dyad models.
 
-![An example of an interactive dashboard that lets you modify the parameters of a Dyad model on the fly](plots/readme_image.png)
+<img alt="An example of an interactive dashboard that lets you modify the parameters of a Dyad model on the fly" src="plots/readme_image.png" width=500/>
