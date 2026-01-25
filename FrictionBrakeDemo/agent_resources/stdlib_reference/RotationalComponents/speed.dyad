@@ -1,0 +1,36 @@
+"""
+Forced movement of a spline according to a reference angular velocity signal.
+
+Models an ideal source of rotational motion that imposes a prescribed relative angular velocity
+between a "spline" and its "support" based on the input signal `w_ref`.
+The relative rotation angle, \$\\phi\$, is dynamically calculated based on the angles of the spline and support,
+typically from an extended component like `PartialElementaryOneSplineAndSupport` (e.g., as \$\\phi = \text{spline}.\\phi - \\phi_\text{support}\$).
+The relative angular velocity, `w`, is defined as the time derivative of this relative angle \$\\phi\$:
+```math
+w = \frac{d\\phi}{dt}
+```math
+The core behavior is to equate this kinematic angular velocity `w` with the reference input \$w_{ref}\$:
+```math
+w = w_{ref}
+```math
+This ensures that the spline rotates relative to the support precisely at the angular velocity specified by \$w_{ref}\$.
+"""
+component SpeedSource
+  extends PartialElementaryOneSplineAndSupport
+  "Input signal specifying the desired reference angular velocity of the spline relative to the support."
+  w_ref = RealInput() {^w_ref}
+  "Angle of rotation calculated by differentiating `w`."
+  variable phi::Angle
+  "Angular velocity set by `w_ref`"
+  variable w::AngularVelocity
+relations
+  phi = spline.phi - phi_support
+  w = der(phi)
+  w = w_ref
+metadata {
+  "Dyad": {"icons": {"default": "dyad://RotationalComponents/Pos-Speed-Acc-Move.svg"}},
+  "_links": {
+    "w_ref": {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}
+  }
+}
+end

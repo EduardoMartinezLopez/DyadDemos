@@ -1,0 +1,29 @@
+"""
+Generates a cosine wave with configurable parameters.
+
+A signal generator that produces a cosine wave with the equation
+
+```math
+y(t) = offset + amplitude \cdot \cos(2\pi \cdot frequency \cdot (t-start\_time) + phase)
+```
+
+when time exceeds start_time, otherwise outputs the offset value. The component allows setting
+the wave's amplitude, frequency, phase shift and vertical offset.
+"""
+component Cosine
+  extends Signal
+  "The peak value of the cosine wave"
+  parameter amplitude::Real
+  "The number of cycles per second"
+  parameter frequency::Frequency
+  "The phase shift of the cosine wave in radians"
+  parameter phase::Angle = 0.0
+relations
+  y = ifelse(start_time < time, offset + amplitude * cos(2 * π * frequency * (time - start_time) + phase), offset)
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://BlockComponents/Cosine.svg"}
+  }
+}
+end

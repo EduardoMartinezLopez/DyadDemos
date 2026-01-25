@@ -1,0 +1,4 @@
+analysis SecondOrderSystemTransient
+  extends TransientAnalysis(alg = "auto", start = 0, stop = 5)
+  model = SecondOrderSystemTest()
+end

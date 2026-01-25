@@ -1,0 +1,5 @@
+# This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
+connector Pin
+  potential v::Voltage
+  flow i::Current
+end

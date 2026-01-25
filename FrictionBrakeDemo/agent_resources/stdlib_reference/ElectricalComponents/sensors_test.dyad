@@ -1,0 +1,59 @@
+"""
+A test circuit with a resistor and capacitor in series, driven by a sinusoidal voltage source, instrumented with voltage, current, and power sensors.
+
+This component models an electrical R-C series circuit. A `VoltageSource`, whose
+voltage is determined by a `Sine` signal generator, drives a `Resistor` (R=1 Ohm)
+and a `Capacitor` (C=1 Farad) connected in series. The circuit is completed by a
+`Ground` component. Several sensors are included to monitor the circuit's
+behavior: a `CurrentSensor` measures the current flowing through the series R-C
+combination, a `VoltageSensor` measures the voltage across the `Capacitor`, and
+a `PowerSensor` measures the instantaneous power associated with the `Capacitor`.
+The sine wave generator (`source`) provides an input signal defined by
+$V(t) = \text{offset} + \text{amplitude} \cdot \sin(2 \pi \cdot \text{frequency} \cdot t)$,
+where offset=1, amplitude=10, and frequency=5 Hz. The primary purpose is to
+test the dynamic response of these sensor components in a simple circuit.
+"""
+test component SensorsTest
+  "Signal generator providing a sinusoidal voltage waveform."
+  source = BlockComponents.Sine(offset = 1, amplitude = 10, frequency = 5)
+  "Ideal voltage source whose output is controlled by the 'source' signal."
+  voltage = VoltageSource()
+  "Electrical resistor with a fixed resistance value."
+  resistor = Resistor(R = 1)
+  "Electrical capacitor with a fixed capacitance value."
+  capacitor = Capacitor(C = 1)
+  "Electrical ground reference (0V)."
+  ground = Ground()
+  "Sensor to measure voltage difference between its 'p' and 'n' terminals."
+  voltage_sensor = VoltageSensor()
+  "Sensor to measure current flowing through it from 'p' to 'n'."
+  current_sensor = CurrentSensor()
+  "Sensor to measure electrical power, based on voltage (pv, nv) and current (pc, nc) measurements."
+  power_sensor = PowerSensor()
+relations
+  connect(source.y, voltage.V)
+  connect(voltage.p, resistor.p)
+  connect(resistor.n, current_sensor.p)
+  connect(current_sensor.n, power_sensor.pc)
+  connect(power_sensor.nc, capacitor.p)
+  connect(capacitor.n, voltage.n, ground.g)
+  connect(capacitor.p, voltage_sensor.p, power_sensor.pv)
+  connect(capacitor.n, voltage_sensor.n, power_sensor.nv)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 20,
+        "initial": {"capacitor.v": 10},
+        "expect": {
+          "final": {
+            "current_sensor.i": "0.31798707833424167",
+            "voltage_sensor.v": "0.6820129216657976",
+            "power_sensor.power": "0.21687129634670702"
+          }
+        }
+      }
+    }
+  }
+}
+end

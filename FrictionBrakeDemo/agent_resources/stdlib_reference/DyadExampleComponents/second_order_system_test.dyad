@@ -1,0 +1,25 @@
+component SecondOrderSystemTest
+  src = BlockComponents.Sine(amplitude = 1, frequency = 5) {^src}
+  sys = SecondOrderSystem(k1 = 2, k2 = 3, k3 = 4) {^sys}
+  collector = RealInput() {^collector}
+relations
+  connect(src.y, sys.xdd) {^id4}
+  collector = sys.sum.y
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 10,
+        "atol": {"collector": 0.0001},
+        "expect": {"final": {"collector": 1.2732414701739279}}
+      }
+    }
+  },
+  "_links": {
+    "src": {"Dyad": {"placement": {"icon": {"x1": 100, "y1": 100, "x2": 300, "y2": 300}}}},
+    "sys": {"Dyad": {"placement": {"icon": {"x1": 400, "y1": 100, "x2": 600, "y2": 300}}}},
+    "collector": {"Dyad": {"placement": {"icon": {"x1": 700, "y1": 100, "x2": 900, "y2": 300}}}},
+    "id4": {"Dyad": {"edges": [{"S": 1, "E": 2}]}}
+  }
+}
+end

@@ -1,0 +1,42 @@
+"""
+Fixed heat flow boundary condition, potentially temperature-dependent.
+
+This component represents a thermal boundary condition where a specific amount of
+heat flow rate is exchanged with a connected component through its single thermal port (`node`).
+The primary heat flow is determined by the parameter `Q`. If `Q` is positive,
+heat is supplied to the external system. An optional linear temperature dependency
+can be introduced using the parameter `alpha` (LinearTemperatureCoefficient) and
+`T_ref` (ReferenceTemperature).
+The heat flow `Q_{port}` at the port is defined by the equation:
+```math
+Q_{port} = -Q \cdot (1 + \alpha \cdot (T_{port} - T_{ref}))
+```
+where `Q` is the specified heat flow rate parameter, `\alpha` is the temperature
+coefficient,  `T_{port}` is the temperature at the port (`node.T`), and `T_{ref}`
+is the reference temperature.
+"""
+component FixedHeatFlow
+  "Thermal port for connecting to other thermal components"
+  node = Node() {^node}
+  "Base heat flow rate injected at the port (positive for heat flowing into the connected system)"
+  parameter Q::HeatFlowRate
+  "Reference temperature for temperature-dependent heat flow"
+  parameter T_ref::Temperature = 293.15
+  "Linear temperature coefficient for heat flow rate dependency on port temperature"
+  parameter alpha::LinearTemperatureCoefficient = 0.0
+relations
+  node.Q = -Q * (1 + alpha * (node.T - T_ref))
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://ThermalComponents/FixedHeatFlow.svg"}
+  },
+  "_links": {
+    "node": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "node_b", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

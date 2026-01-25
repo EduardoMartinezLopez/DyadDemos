@@ -1,0 +1,30 @@
+component DCMotor
+  p = Pin()
+  n = Pin()
+  shaft = Spline()
+  housing = Spline()
+  R1 = ElectricalComponents.Resistor(R = R)
+  L1 = ElectricalComponents.Inductor(L = L)
+  emf = ElectricalComponents.RotationalEMF(k = k)
+  inertia = RotationalComponents.Inertia(J = J)
+  friction = RotationalComponents.Damper(d = f)
+  "Armature resistance"
+  parameter R::Resistance = 0.5
+  "Armature inductance"
+  parameter L::Inductance = 4.5e-3
+  "Motor constant"
+  parameter k::ElectricalTorqueConstant = 0.5
+  "Motor inertia"
+  parameter J::Inertia = 0.02
+  "Motor friction factor"
+  parameter f::RotationalDampingConstant = 0.01
+relations
+  initial inertia.phi = 0
+  connect(p, R1.p)
+  connect(R1.n, L1.p)
+  connect(L1.n, emf.p)
+  connect(emf.n, n)
+  connect(emf.rotor, inertia.spline_a, friction.spline_a)
+  connect(friction.spline_b, emf.housing, housing)
+  connect(inertia.spline_b, shaft)
+end

@@ -1,0 +1,38 @@
+"""
+Defines a forced angular position for a spline relative to its support based on an input signal.
+
+This component models the controlled angular positioning of a spline with respect
+to its supporting structure. It takes an external signal, `phi_ref`, as the
+desired or reference angle. The component calculates the actual relative angle, `phi`,
+between the spline and its support using the equation:
+
+```math
+\\phi = \text{spline}.\\phi - \\phi_\text{support}
+```
+
+The core function of this component is to ensure that this actual relative angle
+precisely follows the reference input, as defined by the constraint equation:
+
+```math
+\\phi = \\phi_\text{ref}
+```
+
+The connectors `spline` and `phi_support` are inherited from
+`PartialElementaryOneSplineAndSupport`.
+"""
+component Position
+  extends PartialElementaryOneSplineAndSupport
+  "Input signal defining the desired relative angle between spline and support."
+  phi_ref = RealInput() {^phi_ref}
+  "Variable representing the actual relative angle between spline and support."
+  variable phi::Angle
+relations
+  phi = spline.phi - phi_support
+  phi = phi_ref
+metadata {
+  "Dyad": {"icons": {"default": "dyad://RotationalComponents/Pos-Speed-Acc-Move.svg"}},
+  "_links": {
+    "phi_ref": {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}
+  }
+}
+end

@@ -1,0 +1,9 @@
+# This connector represents an integer signal as an input to a component
+connector IntegerInput = input Integer metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://Dyad/IntegerInput.svg"
+    },
+    "path": { "stroke": "orange" }
+  }
+}

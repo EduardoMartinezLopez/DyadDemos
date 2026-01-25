@@ -1,0 +1,56 @@
+"""
+Forced movement of a flange according to a reference position
+
+Forces a translational flange to track a reference position input via a second-order Bessel filter.
+
+This component drives the translational position 's' of its 'flange' to follow an external reference signal `s_ref`.
+The movement is smoothed by a second-order linear filter, configured as a Bessel filter using the
+parameters `f_crit` (critical frequency), `af` (s-coefficient), and `bf` (s²-coefficient).
+The control input `s_ref` dictates the target position.
+
+The core dynamic relationship, ensuring smooth tracking, is given by the differential equation:
+```math
+\frac{bf}{w_{crit}^2} \frac{d^2s}{dt^2} + \frac{af}{w_{crit}} \frac{ds}{dt} + s = s_{ref}
+```
+where the critical angular frequency 'w_crit' is defined as:
+```math
+w_{crit} = 2\pi f_{crit}
+```
+This formulation ensures a smooth transition of the flange position towards the reference,
+exhibiting the linear phase characteristics of a Bessel filter. The flange's velocity `v`
+and acceleration `a` are also calculated. Initially, the flange position `s` is set to the
+reference position `s_ref`.
+"""
+component Position
+  "Input connector for the reference position signal"
+  s_ref = RealInput() {^s_ref}
+  "Output connector representing the mechanical translational flange"
+  flange = Flange() {^flange}
+  "State variable for the actual position of the flange"
+  variable s::Length
+  "User-defined critical frequency of the Bessel filter in Hertz"
+  parameter f_crit::Frequency = 0.0
+  "Pre-defined s-coefficient for the Bessel filter's characteristic polynomial"
+  final parameter af::Real = 1.3617
+  "Pre-defined s^2-coefficient for the Bessel filter's characteristic polynomial"
+  final parameter bf::Real = 0.6180
+  "Calculated critical angular frequency in rad/s (2*pi*f_crit)"
+  final parameter w_crit::Real = 2 * π * f_crit
+  "State variable for the velocity of the flange"
+  variable v::Velocity
+  "State variable for the acceleration of the flange"
+  variable a::Acceleration
+relations
+  initial s = s_ref
+  v = der(s)
+  a = der(v)
+  a = ((s_ref - s) * w_crit - af * v) * (w_crit / bf)
+  flange.s = s
+metadata {
+  "Dyad": {"icons": {"default": "dyad://TranslationalComponents/Position.svg"}},
+  "_links": {
+    "s_ref": {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
+    "flange": {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}
+  }
+}
+end

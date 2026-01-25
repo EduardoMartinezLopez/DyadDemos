@@ -1,9 +1,12 @@
+##
 using FrictionBrakeDemo
 using ModelingToolkit, DyadInterface
-
+using DataInterpolations
+using DyadData
+using LinearInterpolations
 @named model = VehicleCycleTest()
 res = @time TransientAnalysis(; model, stop = 2000)
-
+##
 using Plots
 plot(res, idxs=[model.vehicle_speed_ref.y, model.vehicle.vehicle_speed])
 plot(res, idxs=[model.brake_thermal.disk_mass.T, model.brake_thermal.pad_mass.T])

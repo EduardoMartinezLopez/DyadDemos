@@ -1,0 +1,54 @@
+"""
+Measures the rate of heat flow between two thermal connection points.
+
+This component represents an ideal thermal sensor that quantifies the heat flow rate
+passing from `node_a` to `node_b`. It introduces no temperature drop between
+its connection points (`node_a.T = node_b.T`) and has no thermal energy storage
+(`node_a.Q + node_b.Q = 0`). The output signal `Q` represents the heat flow
+rate from `node_a` to `node_b`.
+
+The key behaviors are defined by:
+```math
+Q = \text{node_a.Q}
+\text{node_a.Q} + \text{node_b.Q} = 0
+\text{node_a.T} = \text{node_b.T}
+```
+"""
+component HeatFlowSensor
+  "Output signal representing the measured heat flow rate from node_a to node_b"
+  Q = RealOutput() {^Q}
+  "Thermal connection point 'a'"
+  node_a = Node() {^node_a}
+  "Thermal connection point 'b'"
+  node_b = Node() {^node_b}
+relations
+  node_a.T = node_b.T
+  node_a.Q + node_b.Q = 0
+  Q = node_a.Q
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "W", "x": 500, "y": 708.3, "rot": 0}
+    ],
+    "icons": {"default": "dyad://ThermalComponents/HeatFlowSensor.svg"}
+  },
+  "_links": {
+    "Q": {
+      "Dyad": {
+        "placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 90}}
+      }
+    },
+    "node_a": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "node_a", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "node_b": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "node_b", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

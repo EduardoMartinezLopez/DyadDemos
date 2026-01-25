@@ -1,0 +1,9 @@
+# This connector represents a real signal as an output from a component
+connector RealOutput = output Real metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://Dyad/RealOutput.svg"
+    },
+    "path": { "stroke": "blue" }
+  }
+}

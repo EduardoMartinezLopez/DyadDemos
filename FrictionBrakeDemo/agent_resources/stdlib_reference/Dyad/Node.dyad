@@ -1,0 +1,18 @@
+# This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively.
+connector Node
+  potential T::Temperature
+  flow Q::HeatFlowRate
+metadata {
+  "Dyad": {
+    "labels": [
+      { "label": "instance_name", "x": 0, "y": 750, "layer": "diagram" }
+    ],
+    "icons": {
+      "default": "dyad://Dyad/NodeB.svg",
+      "node_a": "dyad://Dyad/NodeA.svg",
+      "node_b": "dyad://Dyad/NodeB.svg"
+    },
+    "path": { "stroke": "red" }
+  }
+}
+end

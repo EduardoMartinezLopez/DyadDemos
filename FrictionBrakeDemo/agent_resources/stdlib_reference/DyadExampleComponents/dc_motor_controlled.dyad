@@ -1,0 +1,42 @@
+test component TestDCMotorLoadControlled
+  motor = DCMotor()
+  ground = ElectricalComponents.Ground()
+  source = ElectricalComponents.VoltageSource()
+  fixed = RotationalComponents.Fixed()
+  load = RotationalComponents.TorqueSource()
+  load_source = BlockComponents.Step(height = tau_load, start_time = load_step_start_time)
+  speed_reference = BlockComponents.Constant(k = w_motor)
+  controller = BlockComponents.LimPID(k = k, Ti = Ti, Td = Td, Nd = Nd, y_max = 5, y_min = -5)
+  signal_ff = BlockComponents.Constant(k = 0)
+  speed_sensor = RotationalComponents.VelocitySensor()
+  "Motor desired speed"
+  parameter w_motor::AngularVelocity = 1
+  "Amplitude of load torque step"
+  parameter tau_load::Torque = -0.3
+  "Load step start time"
+  parameter load_step_start_time::Time = 2
+  "Controller gain"
+  parameter k::Real = 0.5
+  "Controller time constant of the integrator block"
+  parameter Ti::Time = 0.1
+  "Controller Time constant of the derivative block"
+  parameter Td::Time = 1e5
+  "Maximum derivative gain"
+  parameter Nd::Real = 10
+relations
+  initial motor.L1.i = 0
+  initial motor.inertia.w = 0
+  u: analysis_point(controller.y, source.V)
+  y: analysis_point(speed_sensor.w, controller.u_m)
+  r: analysis_point(speed_reference.y, controller.u_s)
+  connect(load_source.y, load.tau)
+  connect(source.p, motor.p)
+  connect(motor.n, source.n, ground.g)
+  connect(motor.shaft, load.spline)
+  connect(motor.housing, load.support, fixed.spline)
+  connect(speed_reference.y, controller.u_s)
+  connect(speed_sensor.w, controller.u_m)
+  connect(controller.y, source.V)
+  connect(controller.u_ff, signal_ff.y)
+  connect(speed_sensor.spline, motor.shaft)
+end

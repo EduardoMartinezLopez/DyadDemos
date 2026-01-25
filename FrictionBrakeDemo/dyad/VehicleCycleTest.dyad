@@ -4,10 +4,12 @@ test component VehicleCycleTest
   vehicle = SimpleVehicle() {^vehicle}
   brake_thermal = BrakeThermal() {^brake_thermal}
   driver = Driver() {^driver}
-  city = CSV.read(cycle_file="city_cycle.csv")
-  td = DyadData.TabularDataset(city)
-  interpolation = BlockComponents.Interpolation() {^interpolation}
+  interpolation = BlockComponents.Interpolation(
+    interpolation_type = LinearInterpolation,
+    dataset = DyadDataset("city_cycle.csv", dependent_vars = ["v"], independent_var = "t")
+  ) {^interpolation}
 relations
+  interpolation.u = time
   connect(brake.shaft, vehicle.shaft) {^id7}
   connect(brake.disk, brake_thermal.heat_disk) {^id8}
   connect(brake_thermal.heat_pad, brake.pad) {^id9}
@@ -195,11 +197,6 @@ metadata {
 }
 end
 
-component VechicleCycleTestLUTProfile
-  extends VehicleCycleTest
-  parameter cycle_file::String = "city_cycle.csv"
-relations
-end
 
 analysis VehicleCycleAnalysis
   extends TransientAnalysis(stop = 1000.0)

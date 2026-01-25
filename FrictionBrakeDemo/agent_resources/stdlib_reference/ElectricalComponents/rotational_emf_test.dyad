@@ -1,0 +1,67 @@
+"""
+A test circuit for a rotational electromechanical transducer (RotationalEMF) driven by a sinusoidal voltage and connected to an inertial load.
+
+This model simulates a rotational electromechanical device (`RotationalEMF`) whose electrical terminals are excited by a sinusoidal voltage. The housing of the `RotationalEMF` is mechanically fixed, while its rotor is connected to a rotational `Inertia`. A `Sine` signal generator provides the input for a `VoltageSource`, which in turn applies voltage to the `RotationalEMF`. This setup allows for testing the dynamic response of the `RotationalEMF` and the connected inertia to electrical stimulation. The primary behavior demonstrated is the conversion of electrical energy (sinusoidal voltage) into mechanical motion (rotation of the inertia) and the generation of torque.
+"""
+test component RotationalEMFTest
+  "Electromechanical transducer converting electrical to rotational energy and vice-versa, with coupling constant k=1."
+  rot_emf = RotationalEMF(k = 1) {^rot_emf}
+  "Represents a mechanically fixed point, providing a stationary reference for the EMF housing."
+  fixed = RotationalComponents.Fixed() {^fixed}
+  "Generates a sinusoidal signal (amplitude=1, frequency=1 rad/s, offset=0, start_time=0) to define the voltage source's behavior."
+  input_signal = BlockComponents.Sine(amplitude = 1, frequency = 1, offset = 0, start_time = 0) {^input_signal}
+  "Ideal voltage source whose output voltage is driven by the input_signal."
+  sine_voltage = VoltageSource() {^sine_voltage}
+  "Rotational inertia with moment of inertia J=100 kg.m^2, representing the mechanical load."
+  inertia = RotationalComponents.Inertia(J = 100) {^inertia}
+relations
+  initial rot_emf.phi = 0.0
+  connect(input_signal.y, sine_voltage.V) {^id6}
+  connect(fixed.spline, rot_emf.housing) {^id7}
+  connect(rot_emf.p, sine_voltage.p) {^id8}
+  connect(sine_voltage.n, rot_emf.n) {^id9}
+  connect(rot_emf.rotor, inertia.spline_a) {^id10}
+metadata {
+  "Dyad": {
+    "tests": {"case1": {"stop": 10, "expect": {"signals": ["rot_emf.tau", "rot_emf.phi"]}}}
+  },
+  "_links": {
+    "rot_emf": {
+      "Dyad": {"placement": {"icon": {"x1": 300, "y1": 700, "x2": 500, "y2": 900, "rot": 0}}}
+    },
+    "fixed": {
+      "Dyad": {"placement": {"icon": {"x1": 0, "y1": 700, "x2": 200, "y2": 900, "rot": 180}}}
+    },
+    "input_signal": {
+      "Dyad": {"placement": {"icon": {"x1": 300, "y1": 100, "x2": 500, "y2": 300, "rot": 0}}}
+    },
+    "sine_voltage": {
+      "Dyad": {"placement": {"icon": {"x1": 500, "y1": 400, "x2": 700, "y2": 600, "rot": 0}}}
+    },
+    "inertia": {
+      "Dyad": {"placement": {"icon": {"x1": 600, "y1": 700, "x2": 800, "y2": 900, "rot": 0}}}
+    },
+    "id6": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 600, "y": 200}], "E": 2}]}},
+    "id7": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 500}], "E": 2}]}},
+    "id9": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 750, "y": 500},
+              {"x": 750, "y": 650},
+              {"x": 550, "y": 650},
+              {"x": 550, "y": 950},
+              {"x": 400, "y": 950}
+            ],
+            "E": 2
+          }
+        ]
+      }
+    },
+    "id10": {"Dyad": {"edges": [{"S": 1, "E": 2}]}}
+  }
+}
+end

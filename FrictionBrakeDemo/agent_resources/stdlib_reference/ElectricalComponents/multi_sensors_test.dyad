@@ -1,0 +1,57 @@
+"""
+A test circuit designed to verify the behavior of a MultiSensor component within
+a series R-C circuit driven by a sinusoidal voltage source.
+
+This component models an electrical test bench. A `VoltageSource`, whose voltage
+$V_{in}(t)$ is dictated by a `BlockComponents.Sine` signal generator, applies a
+sinusoidal voltage to a circuit.
+This circuit comprises a `Resistor` (R) in series with a `Capacitor` (C).
+The `MultiSensor` component, which is the device under test, is placed to measure
+the current $i(t)$ flowing through the resistor and capacitor, and the voltage
+$v_C(t)$ across the capacitor. The `Ground` component provides a common reference
+potential (0 V).
+The circuit dynamics are governed by the differential equation for the capacitor
+voltage $v_C(t)$: $R C \frac{d v_C(t)}{dt} + v_C(t) = V_{in}(t)$ and
+the current is $i(t) = C \frac{d v_C(t)}{dt}$.
+The `MultiSensor` is expected to report $v_C(t)$ as its voltage measurement and
+$i(t)$ as its current measurement.
+"""
+test component MultiSensorTest
+  "Signal generator providing a sinusoidal input waveform with specified offset, amplitude, and frequency."
+  source = BlockComponents.Sine(offset = 1, amplitude = 10, frequency = 5)
+  "Ideal voltage source component; its voltage is controlled by an external signal."
+  voltage = VoltageSource()
+  "Resistor component with a resistance value R=1 Ohm."
+  resistor = Resistor(R = 1)
+  "Capacitor component with a capacitance value C=1 Farad."
+  capacitor = Capacitor(C = 1)
+  "Electrical ground component, providing a zero-volt reference potential."
+  ground = Ground()
+  "The multi-functional sensor component under test; it measures voltage, current and calculates power."
+  multi_sensor = MultiSensor()
+relations
+  connect(source.y, voltage.V)
+  connect(voltage.p, resistor.p)
+  connect(resistor.n, multi_sensor.pc)
+  connect(multi_sensor.nc, capacitor.p)
+  connect(capacitor.n, voltage.n, ground.g)
+  connect(capacitor.p, multi_sensor.pv)
+  connect(capacitor.n, multi_sensor.nv)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 20,
+        "initial": {"capacitor.v": 10},
+        "expect": {
+          "final": {
+            "multi_sensor.i": "0.31798707833424167",
+            "multi_sensor.v": "0.6820129216657976",
+            "multi_sensor.power": "0.21687129634670702"
+          }
+        }
+      }
+    }
+  }
+}
+end

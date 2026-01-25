@@ -1,0 +1,18 @@
+# This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively.
+connector Spline
+  potential phi::Angle
+  flow tau::Torque
+metadata {
+  "Dyad": {
+    "labels": [
+      { "label": "instance_name", "x": 0, "y": 750, "layer": "diagram" }
+    ],
+    "icons": {
+      "default": "dyad://Dyad/HydraulicPortA.svg",
+      "hydraulic_port_a": "dyad://Dyad/HydraulicPortA.svg",
+      "hydraulic_port_b": "dyad://Dyad/HydraulicPortB.svg"
+    },
+    "path": { "stroke": "#aaa" }
+  }
+}
+end

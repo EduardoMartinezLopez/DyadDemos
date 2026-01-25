@@ -1,0 +1,46 @@
+"""
+Test circuit for a saturating inductor component.
+
+This test component evaluates the behavior of a `SaturatingInductor`.
+It constructs an electrical circuit where the saturating inductor is
+placed in parallel with a standard linear inductor. A constant voltage
+source, driven by a signal generator block, applies 40 volts across
+this parallel inductor arrangement. The primary purpose is to observe
+and verify the dynamic changes in the saturating inductor's apparent
+inductance (`L_actual`) as current builds up, leading to magnetic
+saturation. Initial conditions are set for the saturating inductor's
+current, and the test metadata specifies expected inductance values at
+the beginning and end of the simulation, facilitating automated
+verification of the saturating inductor model.
+"""
+test component SaturatingInductorTest
+  "Instance of the saturating inductor model being tested."
+  sat_inductor = SaturatingInductor(L_zero = 2, L_inf = 0.5, L_nominal = 1)
+  "Constant signal generator providing the input for the voltage source."
+  signal = BlockComponents.Constant(k = 40)
+  "Ideal voltage source component."
+  source = VoltageSource()
+  "Electrical ground connection."
+  ground = Ground()
+  "Standard linear inductor used in parallel for the test setup."
+  inductor = Inductor(L = 1)
+relations
+  initial sat_inductor.i = 1e-10
+  initial inductor.p.i = 0.0
+  connect(signal.y, source.V)
+  connect(source.n, ground.g, sat_inductor.n, inductor.n)
+  connect(sat_inductor.p, source.p, inductor.p)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 10,
+        "expect": {
+          "initial": {"sat_inductor.L_actual": 2},
+          "final": {"sat_inductor.L_actual": 0.50863266}
+        }
+      }
+    }
+  }
+}
+end

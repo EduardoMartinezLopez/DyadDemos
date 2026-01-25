@@ -1,5 +1,8 @@
 module FrictionBrakeDemo
 
+using DataInterpolations
+using DyadData
+
 include("../generated/types.jl")
 include("../generated/definitions.jl")
 include("../generated/experiments.jl")

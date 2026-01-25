@@ -1,0 +1,18 @@
+# This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
+connector Pin
+  potential v::Voltage
+  flow i::Current
+metadata {
+  "Dyad": {
+    "labels": [
+      { "label": "instance_name", "x": 0, "y": 750, "layer": "diagram" }
+    ],
+    "icons": {
+      "default": "dyad://Dyad/PosElectricalPort.svg",
+      "pos": "dyad://Dyad/PosElectricalPort.svg",
+      "neg": "dyad://Dyad/NegElectricalPort.svg"
+    },
+    "path": { "stroke": "blue" }
+  }
+}
+end

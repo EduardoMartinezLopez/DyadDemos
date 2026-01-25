@@ -1,0 +1,34 @@
+"""
+Base model for a 1D translational compliant connection.
+
+This partial component establishes the fundamental kinematic and force relationships for a generic compliant
+connection between two 1D translational mechanical flanges, `flange_a` and `flange_b`. It defines the
+relative displacement, $s_{rel}$, between the flanges and the internal force, $f$,
+transmitted through the compliant element.
+The defining equations are:
+Relative displacement: $s_{rel} = flange_b.s - flange_a.s$
+Force on `flange_b`: $flange_b.f = f$
+Force on `flange_a`: $flange_a.f = -f$
+This model is `partial` and intended to be extended by concrete components that will specify the
+constitutive law for $f$ based on $s_{rel}$ and/or its time derivatives (e.g., a spring or damper).
+"""
+partial component PartialCompliant
+  "Port representing the first translational 1D shaft flange."
+  flange_a = Flange() {^flange_a}
+  "Port representing the second translational 1D shaft flange."
+  flange_b = Flange() {^flange_b}
+  "Relative distance between `flange_b` and `flange_a`"
+  variable s_rel::Distance
+  "Internal force exerted by the compliant connection on flange_b (and -f on flange_a)."
+  variable f::Dyad.Force
+relations
+  s_rel = flange_b.s - flange_a.s
+  flange_b.f = f
+  flange_a.f = -f
+metadata {
+  "_links": {
+    "flange_a": {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
+    "flange_b": {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}
+  }
+}
+end

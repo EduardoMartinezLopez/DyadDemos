@@ -1,0 +1,99 @@
+"""
+An electrical circuit model featuring an inductor in series with a parallel resistor-capacitor combination, driven by a constant voltage source.
+
+This model represents an electrical circuit where an inductor (L) is connected in series with a parallel arrangement of a resistor (R) and a capacitor (C).
+This L-(R||C) configuration is subjected to a constant voltage provided by a voltage source.  The key dynamics are governed by Kirchhoff's laws.
+Initial conditions are specified for $i_L(0) = 0A$ and $v_C(0) = 10V$. The system is expected to reach a steady state where $v_C = V_{sig} = 30V$.
+"""
+example component RLCModel
+  "Resistor subcomponent with a resistance value of 100 Ohms."
+  resistor = Resistor(R = 100) {^resistor}
+  "Capacitor subcomponent with a capacitance value of 1 milliFarad."
+  capacitor = Capacitor(C = 1m) {^capacitor}
+  "Inductor subcomponent with an inductance value of 1 Henry."
+  inductor = Inductor(L = 1) {^inductor}
+  "Constant signal generator block providing an output value of 30."
+  signal = BlockComponents.Constant(k = 30) {^signal}
+  "Voltage source subcomponent providing the electromotive force."
+  source = VoltageSource() {^source}
+  "Ground subcomponent providing the reference potential (0V)."
+  ground = Ground() {^ground}
+relations
+  initial inductor.i = 0
+  initial capacitor.v = 10
+  connect(signal.y, source.V) {^id7}
+  connect(source.n, inductor.p) {^id8}
+  connect(inductor.n, resistor.n, capacitor.n) {^id9}
+  connect(resistor.p, ground.g, capacitor.p, source.p) {^id10}
+metadata {
+  "Dyad": {
+    "labels": [
+      {
+        "label": "RLC Model",
+        "x": 800,
+        "y": 100,
+        "layer": "diagram",
+        "attrs": {"font-size": "100"}
+      },
+      {"label": "$(instance)", "x": 500, "y": 1100}
+    ],
+    "tests": {
+      "case1": {
+        "stop": 10,
+        "expect": {"initial": {"capacitor.v": 10}, "final": {"capacitor.v": 30}}
+      }
+    }
+  },
+  "_links": {
+    "resistor": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 850, "y1": 450, "x2": 950, "y2": 550, "rot": -90}}
+      }
+    },
+    "capacitor": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 550, "y1": 450, "x2": 650, "y2": 550, "rot": -90}}
+      }
+    },
+    "inductor": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 375, "y1": 250, "x2": 475, "y2": 350, "rot": 0}}
+      }
+    },
+    "signal": {"Dyad": {"placement": {"icon": {"x1": 0, "y1": 450, "x2": 100, "y2": 550}}}},
+    "source": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 200, "y1": 450, "x2": 300, "y2": 550, "rot": -90}}
+      }
+    },
+    "ground": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 550, "y1": 800, "x2": 650, "y2": 900, "rot": 0}}
+      }
+    },
+    "id7": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 250, "y": 300}], "E": 2}]}},
+    "id9": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "E": -1},
+          {"S": 2, "M": [{"x": 900, "y": 300}], "E": -1},
+          {"S": 3, "E": -1}
+        ],
+        "junctions": [{"x": 600, "y": 300}]
+      }
+    },
+    "id10": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 900, "y": 700}], "E": -1},
+          {"S": 2, "E": -1},
+          {"S": 3, "E": -1},
+          {"S": -1, "M": [{"x": 250, "y": 700}], "E": 4}
+        ],
+        "junctions": [{"x": 600, "y": 700}]
+      }
+    }
+  }
+}
+end

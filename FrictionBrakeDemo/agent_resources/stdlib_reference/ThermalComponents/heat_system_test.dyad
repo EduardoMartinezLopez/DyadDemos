@@ -1,0 +1,52 @@
+"""
+Models a thermal system with a fixed temperature source heating a heat capacitor via a conductor; serves as a test component.
+
+This component simulates the transient thermal behavior of a heat capacitor (`mass`)
+connected to an ideal fixed temperature source (`source`) through a thermal conductor (`conductor`).
+It is designed as a test component for the `HeatCapacitor`, `FixedTemperature`, and `ThermalConductor` base models.
+The heat capacitor is characterized by its thermal capacitance `C` and an initial temperature `T0`.
+The fixed temperature source maintains a constant temperature `T`. Heat transfer between the
+source and the capacitor is facilitated by the thermal conductor, which has a thermal conductance `G`.
+The temperature of the heat capacitor, denoted `mass.T`, changes over time according to the
+first-order differential equation:
+```math
+C \cdot \frac{d(mass.T)}{dt} = Q_{flow}
+```
+where `Q_{flow}` represents the heat flow rate into the capacitor. This heat flow is
+determined by the temperature difference across the conductor and its conductance:
+```math
+Q_{flow} = G \cdot (T_{source} - mass.T)
+```
+In this component, `T_{source}` is the temperature `T` from the `source` subcomponent.
+Consequently, `mass.T` will asymptotically approach `T` as the simulation progresses.
+"""
+component HeatSystemTest
+  "Heat capacitor subcomponent representing the thermal mass"
+  mass = HeatCapacitor(C = C, T0 = T0)
+  "Fixed temperature source subcomponent"
+  source = FixedTemperature(T = T)
+  "Thermal conductor subcomponent facilitating heat flow"
+  conductor = ThermalConductor(G = G)
+  "Temperature of the fixed temperature source"
+  parameter T::Real = 10.0
+  "Initial temperature of the heat capacitor"
+  parameter T0::Real = -10.0
+  "Thermal capacitance of the heat capacitor"
+  parameter C::Real = 10.0
+  "Thermal conductance of the conductor"
+  parameter G::Real = 10.0
+relations
+  connect(source.node, conductor.node_a)
+  connect(conductor.node_b, mass.node)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 10,
+        "atol": {"mass.T": 0.001, "mass.dT": 0.001},
+        "expect": {"final": {"mass.T": 9.999, "mass.dT": 0}}
+      }
+    }
+  }
+}
+end

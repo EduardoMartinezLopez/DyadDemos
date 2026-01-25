@@ -1,0 +1,53 @@
+"""
+Tests the integration of a cosine signal with configurable parameters.
+
+This component connects a cosine signal generator to an integrator and verifies the correct
+integration behavior through test cases. The cosine signal is defined by:
+
+```math
+y = offset + amplitude \cdot \cos(2\pi \cdot frequency \cdot (time - start\_time) + phase)
+```
+
+The integration of this signal is verified against expected values at specific time points.
+"""
+test component CosineTest
+  "Integrator component that accumulates the input signal"
+  integrator = Integrator() {^integrator}
+  "Cosine signal generator with specified amplitude, frequency, start time, offset, and phase"
+  signal = Cosine(amplitude = 1, frequency = 2, start_time = 0.5, offset = 0.5, phase = 3.14) {^signal}
+relations
+  "Connects the output of the cosine signal to the input of the integrator"
+  connect(signal.y, integrator.u) {^id3}
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 5,
+        "atol": {"signal.y": 0.001, "integrator.x": 0.001},
+        "expect": {
+          "initial": {"signal.y": 0.5},
+          "signals": ["signal.y", "integrator.x"],
+          "final": {"signal.y": -0.5, "integrator.x": 2.5}
+        }
+      }
+    }
+  },
+  "_links": {
+    "integrator": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 150, "y1": 20, "x2": 250, "y2": 120, "rot": 0}
+        }
+      }
+    },
+    "signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        }
+      }
+    },
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

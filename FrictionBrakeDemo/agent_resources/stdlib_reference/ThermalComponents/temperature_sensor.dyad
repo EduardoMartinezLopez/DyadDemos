@@ -1,0 +1,39 @@
+"""
+Measures the absolute temperature at a thermal node.
+
+This component represents an ideal sensor that measures the absolute temperature
+from a thermal `Node`. The temperature at the `node` is directly provided as
+a `RealOutput` signal. The sensor is considered ideal because it imposes no
+thermal load on the system it is connected to, which is enforced by the
+equation `node.Q = 0`. The output temperature `T` is thus defined as:
+```math
+T = node.T
+```
+And the heat flow at the node is:
+```math
+node.Q = 0
+```
+"""
+component TemperatureSensor
+  "Thermal connection point from which temperature is measured"
+  node = Node() {^node}
+  "Output signal representing the measured absolute temperature"
+  T = RealOutput() {^T}
+relations
+  T = node.T
+  node.Q = 0
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://ThermalComponents/TemperatureSensor.svg"}
+  },
+  "_links": {
+    "node": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "node_a", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "T": {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}
+  }
+}
+end

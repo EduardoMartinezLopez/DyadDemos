@@ -1,0 +1,69 @@
+component SecondOrderSystem
+  xdd = RealInput() {^xdd}
+  integrator1 = BlockComponents.Integrator() {^integrator1}
+  integrator2 = BlockComponents.Integrator() {^integrator2}
+  gain1 = BlockComponents.Gain(k = k1) {^gain1}
+  gain2 = BlockComponents.Gain(k = k2) {^gain2}
+  gain3 = BlockComponents.Gain(k = k3) {^gain3}
+  sum = BlockComponents.Add3() {^sum}
+  parameter k1::Real
+  parameter k2::Real
+  parameter k3::Real
+relations
+  connect(xdd, integrator1.u, gain1.u) {^id8}
+  connect(integrator1.y, integrator2.u, gain2.u) {^id9}
+  connect(integrator2.y, gain3.u) {^id10}
+  connect(gain1.y, sum.u3) {^id11}
+  connect(gain2.y, sum.u2) {^id12}
+  connect(gain3.y, sum.u1) {^id13}
+metadata {
+  "Dyad": {
+    "labels": [
+      {
+        "label": "Second Order System",
+        "x": 500,
+        "y": 50,
+        "layer": "diagram",
+        "attrs": {"font-size": "50"}
+      }
+    ]
+  },
+  "_links": {
+    "xdd": {"Dyad": {"placement": {"icon": {"x1": -25, "y1": 475, "x2": 25, "y2": 525}}}},
+    "integrator1": {"Dyad": {"placement": {"icon": {"x1": 100, "y1": 100, "x2": 250, "y2": 250}}}},
+    "integrator2": {"Dyad": {"placement": {"icon": {"x1": 350, "y1": 100, "x2": 500, "y2": 250}}}},
+    "gain1": {"Dyad": {"placement": {"icon": {"x1": 100, "y1": 700, "x2": 250, "y2": 850}}}},
+    "gain2": {"Dyad": {"placement": {"icon": {"x1": 350, "y1": 400, "x2": 500, "y2": 550}}}},
+    "gain3": {"Dyad": {"placement": {"icon": {"x1": 600, "y1": 100, "x2": 750, "y2": 250}}}},
+    "sum": {"Dyad": {"placement": {"icon": {"x1": 850, "y1": 400, "x2": 1000, "y2": 550}}}},
+    "id8": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "M": [{"x": 80, "y": 175}], "E": 2},
+          {"S": -1, "M": [{"x": 80, "y": 775}], "E": 3},
+          {"S": -1, "E": 1}
+        ],
+        "junctions": [{"x": 80, "y": 500}]
+      }
+    },
+    "id9": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "E": 1},
+          {"S": -1, "E": 2},
+          {"S": -1, "M": [{"x": 320, "y": 475}], "E": 3}
+        ],
+        "junctions": [{"x": 320, "y": 175}]
+      }
+    },
+    "id10": {"Dyad": {"edges": [{"S": 2, "E": 1}]}},
+    "id11": {
+      "Dyad": {"edges": [{"S": 2, "M": [{"x": 820, "y": 520}, {"x": 820, "y": 775}], "E": 1}]}
+    },
+    "id12": {"Dyad": {"edges": [{"S": 2, "E": 1}]}},
+    "id13": {
+      "Dyad": {"edges": [{"S": 2, "M": [{"x": 820, "y": 430}, {"x": 820, "y": 175}], "E": 1}]}
+    }
+  }
+}
+end

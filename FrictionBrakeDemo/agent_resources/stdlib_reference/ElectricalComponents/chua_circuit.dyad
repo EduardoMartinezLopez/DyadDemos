@@ -1,0 +1,114 @@
+"""
+Chua's circuit, an electronic circuit known for its chaotic dynamics.
+
+This component represents Chua's circuit, a relatively simple electronic system
+capable of exhibiting complex nonlinear dynamics, including bifurcations and
+chaos. The circuit is constructed from two capacitors (`capacitor1`, `capacitor2`),
+one inductor (`inductor`), a linear resistor (`resistor`), a linear conductor
+(`conductor`), and a single nonlinear element known as Chua's diode (represented
+by `nonlinear_resistor`). The behavior of the circuit is typically described by a
+set of three first-order autonomous ordinary differential equations for the
+voltage across each capacitor and the current through the inductor.
+
+The current `i_NR` through the `nonlinear_resistor` as a function of the voltage `v_C1` across it is given by:
+```math
+i_{NR}(v_{C1}) = Gb \cdot v_{C1} + \frac{1}{2}(Ga - Gb)(|v_{C1} + Ve| - |v_{C1} - Ve|)
+```
+The governing differential equations for the circuit are (using `v_C1` for `capacitor1.v`, `v_C2` for `capacitor2.v`, `i_L` for `inductor.i`):
+```math
+capacitor1.C \cdot \frac{d(v_{C1})}{dt} = conductor.G \cdot (v_{C2} - v_{C1}) - i_{NR}(v_{C1})
+```
+```math
+capacitor2.C \cdot \frac{d(v_{C2})}{dt} = conductor.G \cdot (v_{C1} - v_{C2}) - i_L
+```
+```math
+inductor.L \cdot \frac{d(i_L)}{dt} = v_{C2} - resistor.R \cdot i_L
+```
+Initial conditions for `capacitor1.v`, `capacitor2.v`, and `inductor.i` are
+specified within the `relations` block to define the starting state of the simulation.
+"""
+component ChuaCircuit
+  "Inductor of the Chua's circuit."
+  inductor = Inductor(L = 18) {^inductor}
+  "Linear resistor, typically in series with the inductor."
+  resistor = Resistor(R = 12.5e-3) {^resistor}
+  "Linear conductor, connecting the two capacitors."
+  conductor = Conductor(G = 0.565) {^conductor}
+  "First capacitor in the Chua's circuit."
+  capacitor1 = Capacitor(C = 10) {^capacitor1}
+  "Second capacitor in the Chua's circuit."
+  capacitor2 = Capacitor(C = 100) {^capacitor2}
+  "Nonlinear resistor representing the Chua's diode, with parameters Ga, Gb, Ve."
+  nonlinear_resistor = NonlinearResistor(Ga = -0.757576, Gb = -0.409091, Ve = 1) {^nonlinear_resistor}
+  "Ground reference for the circuit."
+  ground = Ground() {^ground}
+relations
+  initial inductor.i = 0
+  initial capacitor1.v = 4
+  initial capacitor2.v = 0
+  connect(inductor.n, resistor.p) {^id8}
+  connect(inductor.p, capacitor2.p, conductor.p) {^id9}
+  connect(conductor.n, nonlinear_resistor.p, capacitor1.p) {^id10}
+  connect(ground.g, resistor.n, capacitor2.n, capacitor1.n, nonlinear_resistor.n) {^id11}
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 50000, "expect": {"signals": ["capacitor1.v"]}}}},
+  "_links": {
+    "inductor": {
+      "Dyad": {"placement": {"icon": {"x1": 0, "y1": 200, "x2": 200, "y2": 400, "rot": 90}}}
+    },
+    "resistor": {
+      "Dyad": {"placement": {"icon": {"x1": 0, "y1": 500, "x2": 200, "y2": 700, "rot": 90}}}
+    },
+    "conductor": {
+      "Dyad": {"placement": {"icon": {"x1": 450, "y1": 50, "x2": 650, "y2": 250, "rot": 0}}}
+    },
+    "capacitor1": {
+      "Dyad": {"placement": {"icon": {"x1": 600, "y1": 350, "x2": 800, "y2": 550, "rot": 90}}}
+    },
+    "capacitor2": {
+      "Dyad": {"placement": {"icon": {"x1": 300, "y1": 350, "x2": 500, "y2": 550, "rot": 90}}}
+    },
+    "nonlinear_resistor": {
+      "Dyad": {
+        "placement": {"icon": {"x1": 900, "y1": 350, "x2": 1100, "y2": 550, "rot": 90}}
+      }
+    },
+    "ground": {
+      "Dyad": {"placement": {"icon": {"x1": 450, "y1": 800, "x2": 650, "y2": 1000, "rot": 0}}}
+    },
+    "id8": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id9": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "M": [{"x": 100, "y": 150}], "E": 1},
+          {"S": -1, "E": 2},
+          {"S": -1, "E": 3}
+        ],
+        "junctions": [{"x": 400, "y": 150}]
+      }
+    },
+    "id10": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "E": 1},
+          {"S": -1, "M": [{"x": 1000, "y": 150}], "E": 2},
+          {"S": -1, "E": 3}
+        ],
+        "junctions": [{"x": 700, "y": 150}]
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "E": 1},
+          {"S": -1, "M": [{"x": 100, "y": 750}], "E": 2},
+          {"S": -1, "M": [{"x": 400, "y": 750}], "E": 3},
+          {"S": -1, "M": [{"x": 700, "y": 750}], "E": 4},
+          {"S": -1, "M": [{"x": 1000, "y": 750}], "E": 5}
+        ],
+        "junctions": [{"x": 550, "y": 750}]
+      }
+    }
+  }
+}
+end

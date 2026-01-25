@@ -1,0 +1,4 @@
+analysis DeSautyTransient
+  extends TransientAnalysis(alg = "auto", abstol = 1e-6, reltol = 1e-5, start = 0, stop = 0.1)
+  model = DeSauty()
+end

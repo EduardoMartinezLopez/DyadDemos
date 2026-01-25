@@ -1,0 +1,8 @@
+connector RealInput = input Real metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://Dyad/RealInput.svg"
+    },
+    "path": { "stroke": "blue" }
+  }
+}

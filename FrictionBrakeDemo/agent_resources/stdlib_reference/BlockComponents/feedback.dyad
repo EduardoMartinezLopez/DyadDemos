@@ -1,0 +1,20 @@
+"""
+Computes the difference between a reference input and a feedback input.
+
+This block calculates the error signal in a feedback control system by subtracting the feedback
+input (`u2`) from the reference input (`u1`). The component is typically used at the beginning of a
+control system to determine the difference between a desired setpoint and the measured output
+being fed back.
+"""
+component Feedback
+  extends SI2SO
+relations
+  "Calculates output as the difference between the reference input and feedback input"
+  y = u1 - u2
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://BlockComponents/Feedback.svg"}
+  }
+}
+end

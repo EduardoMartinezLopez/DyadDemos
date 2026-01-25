@@ -1,0 +1,44 @@
+"""
+Models a test fluid system where a step-defined pressure source drives flow through a pipe into a fixed volume.
+
+This `FluidSystemTest` component models the dynamic behavior of a fluid flowing from a pressure source
+through a pipe into a fixed volume. The pressure at the source is defined by a step input signal `signal.y`.
+The fluid is characterized by the `medium` properties, which are isothermal and compressible.
+The `tube` component accounts for frictional losses and optionally fluid inertia, with its geometry
+defined by `tube_area` and `length`. The `vol` component represents a terminal volume where fluid
+accumulates or is discharged.
+"""
+test component FluidSystemTest
+  "Step input signal dictating the boundary pressure."
+  signal = BlockComponents.Step(height = 1e6, start_time = 0.5)
+  "Boundary pressure source."
+  src = BoundaryPressure()
+  "Fixed volume reservoir."
+  vol = FixedVolume(vol = 10.0, p0 = 0.0)
+  "Fluid conduit (pipe) with friction and optional inertia."
+  tube = TubeBase(area = tube_area, head_factor = 1, length = 50, shape_factor = 64, add_inertia = add_inertia, perimeter = 2 * sqrt(tube_area * pi), m_flow0 = 0)
+  "Cross-sectional area of the tube."
+  parameter tube_area::Area = 0.01
+  "Boolean flag to include fluid inertia in the tube model."
+  parameter add_inertia::Boolean = true
+  "Wetted perimeter of the tube, calculated from tube_area assuming a circular cross-section."
+  final parameter tube_perimeter::Length = 2 * sqrt(tube_area * pi)
+  "Path defining the properties of the working fluid (isothermal, compressible)."
+  path medium::AbstractMedium = IsothermalCompressible(bulk_modulus = 1e9, let_gas = false)
+relations
+  connect(signal.y, src.p)
+  connect(src.port, tube.port_a)
+  connect(tube.port_b, vol.port)
+  continuity(medium, vol.port.medium)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 2,
+        "atol": {"vol.rho": 0.001, "vol.port.p": 150, "tube.m_flow": 0.006},
+        "expect": {"signals": ["vol.rho", "vol.port.p", "tube.m_flow"]}
+      }
+    }
+  }
+}
+end

@@ -1,0 +1,4 @@
+analysis SimpleRLCTransient
+  extends TransientAnalysis(alg = "auto", abstol = 10m, reltol = 1m, start = 0, stop = 10)
+  model::RLCModel() = RLCModel()
+end
