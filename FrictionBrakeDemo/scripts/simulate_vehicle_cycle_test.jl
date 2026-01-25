@@ -5,16 +5,17 @@ using DataInterpolations
 using DyadData
 using LinearInterpolations
 @named model = VehicleCycleTest()
-res = @time TransientAnalysis(; model, stop = 2000)
+res = @time VehicleCycleAnalysis(model=model)
 ##
 using Plots
-plot(res, idxs=[model.vehicle_speed_ref.y, model.vehicle.vehicle_speed])
+plot(res, idxs=[model.interpolation.y, model.vehicle.vehicle_speed])
+
 plot(res, idxs=[model.brake_thermal.disk_mass.T, model.brake_thermal.pad_mass.T])
 plot(res, idxs=[model.driver.throttle, model.driver.brake])
 plot(res, idxs=[model.powertrain.drive.tau, model.brake.shaft.tau])
 plot(res, idxs=[model.brake_thermal.heat_disk.Q, model.brake_thermal.heat_pad.Q])
 
-plot(res, idxs = (model.vehicle_speed_ref.y, model.brake_thermal.disk_mass.T))
+plot(res, idxs = (model.interpolation.y, model.brake_thermal.disk_mass.T))
 
 ## Eddie sandbox
 import CSV

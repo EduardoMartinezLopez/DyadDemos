@@ -199,6 +199,6 @@ end
 
 
 analysis VehicleCycleAnalysis
-  extends TransientAnalysis(stop = 1000.0)
+  extends TransientAnalysis(stop = 1369.0, saveat = 1.0, dtmax = 10.0, abstol = 1e-3, reltol = 1e-2)
   model = VehicleCycleTest()
 end

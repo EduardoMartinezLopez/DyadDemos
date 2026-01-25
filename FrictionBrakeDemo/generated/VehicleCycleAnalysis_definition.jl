@@ -11,11 +11,11 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :VehicleCycleAnalysis
   var"alg"::String = "auto"
   var"start"::Float64 = 0
-  var"stop"::Float64 = 1000
-  var"abstol"::Float64 = 0.000001
-  var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 0
-  var"dtmax"::Float64 = 0
+  var"stop"::Float64 = 1369
+  var"abstol"::Float64 = 0.001
+  var"reltol"::Float64 = 0.01
+  var"saveat"::Float64 = 1
+  var"dtmax"::Float64 = 10
   var"IfLifting"::Bool = false
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.VehicleCycleTest(; name=:VehicleCycleTest)
 end
