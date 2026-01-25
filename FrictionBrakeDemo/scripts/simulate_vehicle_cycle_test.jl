@@ -12,3 +12,10 @@ plot(res, idxs=[model.powertrain.drive.tau, model.brake.shaft.tau])
 plot(res, idxs=[model.brake_thermal.heat_disk.Q, model.brake_thermal.heat_pad.Q])
 
 plot(res, idxs = (model.vehicle_speed_ref.y, model.brake_thermal.disk_mass.T))
+
+## Eddie sandbox
+import CSV
+using DataFrames
+city = CSV.read("city_cycle.csv")
+td = DyadData.TabularDataset(city)
+

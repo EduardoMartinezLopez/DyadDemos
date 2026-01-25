@@ -7,21 +7,23 @@
 using DyadInterface
 
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@kwdef mutable struct TestPowertrainTransientSpec <: AbstractTransientAnalysisSpec
-  name::Symbol = :TestPowertrainTransient
-  var"alg"::String = "auto"
+@kwdef mutable struct EspressoCoolingModularSpec <: AbstractTransientAnalysisSpec
+  name::Symbol = :EspressoCoolingModular
+  var"alg"::String = "Rodas5P"
   var"start"::Real = 0
-  var"stop"::Real = 50
+  var"stop"::Real = 6000
   var"abstol"::Real = 0.000001
   var"reltol"::Real = 0.000001
   var"saveat"::Real = 0
   var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
-  # Test harness with inertial load and damper
-  var"model"::Union{Nothing, System} = FrictionBrakeDemo.TestPowertrain(; name=:TestPowertrain)
+  # ==============================================================================
+  # TOP-LEVEL ASSEMBLY: Espresso Cup System with Subsystems
+  # ==============================================================================
+  var"model"::Union{Nothing, System} = CoffeeMugDemo.EspressoCupSystemModular(; name=:EspressoCupSystemModular)
 end
 
-function DyadInterface.run_analysis(spec::TestPowertrainTransientSpec)
+function DyadInterface.run_analysis(spec::EspressoCoolingModularSpec)
   spec.model = DyadInterface.update_model(spec.model, (; ))
   base_spec = TransientAnalysisSpec(;
     name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
@@ -29,6 +31,6 @@ function DyadInterface.run_analysis(spec::TestPowertrainTransientSpec)
   run_analysis(base_spec)
 end
 
-TestPowertrainTransient(;kwargs...) = run_analysis(TestPowertrainTransientSpec(;kwargs...))
-export TestPowertrainTransient, TestPowertrainTransientSpec
-export TestPowertrainTransientSpec, TestPowertrainTransient
+EspressoCoolingModular(;kwargs...) = run_analysis(EspressoCoolingModularSpec(;kwargs...))
+export EspressoCoolingModular, EspressoCoolingModularSpec
+export EspressoCoolingModularSpec, EspressoCoolingModular

@@ -18,9 +18,7 @@ end
 
 import BlockComponents
 import DyadInterface
-import RotationalComponents
 import ThermalComponents
-import TranslationalComponents
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
 """
@@ -62,26 +60,11 @@ This connector represents a rotational spline with angle and torque as the poten
   return System(Equation[], t, vars, []; name)
 end
 
-include("BrakeThermalAnalysis_Constant_definition.jl")
-include("BrakeThermalAnalysis_Step_definition.jl")
-include("BrakeThermalTest_Constant_definition.jl")
-include("BrakeThermalTest_Step_definition.jl")
-include("BrakeThermal_definition.jl")
-include("Driver_definition.jl")
-include("FrictionBrakeTestAnalysis_definition.jl")
-include("FrictionBrakeTest_definition.jl")
-include("FrictionBrake_definition.jl")
-include("SimplePowertrain_definition.jl")
-include("SimpleVehicleTestAnalysis_CoastDown_definition.jl")
-include("SimpleVehicleTestAnalysis_Constant_definition.jl")
-include("SimpleVehicleTest_CoastDown_definition.jl")
-include("SimpleVehicleTest_Constant_definition.jl")
-include("SimpleVehicle_definition.jl")
-include("TestDriverAnalysis_Braking_definition.jl")
-include("TestDriverAnalysis_Constant_definition.jl")
-include("TestDriverWithBraking_definition.jl")
-include("TestDriver_Constant_definition.jl")
-include("TestPowertrainTransient_definition.jl")
-include("TestPowertrain_definition.jl")
-include("VehicleCycleAnalysis_definition.jl")
-include("VehicleCycleTest_definition.jl")
+include("CoffeeMugSubsystem_definition.jl")
+include("EspressoCoolingModular_definition.jl")
+include("EspressoCoolingWithSpoon_definition.jl")
+include("EspressoCupSystemModular_definition.jl")
+include("EspressoCupSystemWithSpoon_definition.jl")
+include("HandSubsystem_definition.jl")
+include("SpoonSubsystem_definition.jl")
+include("SteamSubsystem_definition.jl")

@@ -38,6 +38,78 @@ component ThermalHouseControlled
   "Zero feed-forward input for PID"
   zero_ff = BlockComponents.Constant(k=0.0)
   
+  add = BlockComponents.Add() [{
+    "Dyad": {
+      "tags": [],
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": 0,
+          "y1": 0,
+          "x2": 100,
+          "y2": 100,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": 0,
+          "y1": 0,
+          "x2": 100,
+          "y2": 100,
+          "rot": 0
+        }
+      }
+    }
+  }]
+
+cosine = BlockComponents.Cosine() [{
+  "Dyad": {
+    "tags": [],
+    "placement": {
+      "icon": {
+        "iconName": "default",
+        "x1": 0,
+        "y1": 0,
+        "x2": 100,
+        "y2": 100,
+        "rot": 0
+      },
+      "diagram": {
+        "iconName": "default",
+        "x1": 0,
+        "y1": 0,
+        "x2": 100,
+        "y2": 100,
+        "rot": 0
+      }
+    }
+  }
+}]
+
+cosine2 ::BlockComponents.Cosine = BlockComponents.Cosine() [{
+  "Dyad": {
+    "tags": [],
+    "placement": {
+      "icon": {
+        "iconName": "default",
+        "x1": 0,
+        "y1": 0,
+        "x2": 100,
+        "y2": 100,
+        "rot": 0
+      },
+      "diagram": {
+        "iconName": "default",
+        "x1": 0,
+        "y1": 0,
+        "x2": 100,
+        "y2": 100,
+        "rot": 0
+      }
+    }
+  }
+}]
+  
 relations
   "Connect setpoint and measurement to PID"
   connect(T_setpoint, pid.u_s)

@@ -1,148 +1,24 @@
-# Simulation experiment for the brake thermal system assembly with a vehicle on a transient cycle
 test component VehicleCycleTest
-  brake = FrictionBrake(f_partition = 0.93) [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 300, "y1": 300, "x2": 400, "y2": 400, "rot": 0}
-      }
-    }
-  }]
-  powertrain = SimplePowertrain() [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 300, "y1": 450, "x2": 400, "y2": 550, "rot": 0}
-      }
-    }
-  }]
-  vehicle = SimpleVehicle() [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 440, "y1": 380, "x2": 540, "y2": 480, "rot": 0}
-      }
-    }
-  }]
-  brake_thermal = BrakeThermal() [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 300, "y1": 150, "x2": 400, "y2": 250, "rot": 0}
-      }
-    }
-  }]
-  driver = Driver() [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 160, "y1": 380, "x2": 260, "y2": 480, "rot": 0}
-      }
-    }
-  }]
-  vehicle_speed_ref = BlockComponents.Sine(start_time = 0.0, offset = 15.2, amplitude = 15, frequency = 0.02) [{
-    "Dyad": {
-      "placement": {
-        "diagram": {"iconName": "default", "x1": 30, "y1": 320, "x2": 130, "y2": 420, "rot": 0}
-      }
-    }
-  }]
+  brake = FrictionBrake(f_partition = 0.93) {^brake}
+  powertrain = SimplePowertrain() {^powertrain}
+  vehicle = SimpleVehicle() {^vehicle}
+  brake_thermal = BrakeThermal() {^brake_thermal}
+  driver = Driver() {^driver}
+  city = CSV.read(cycle_file="city_cycle.csv")
+  td = DyadData.TabularDataset(city)
+  interpolation = BlockComponents.Interpolation() {^interpolation}
 relations
-  connect(brake.shaft, vehicle.shaft) [{
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 420, "y": 350}, {"x": 420, "y": 430}], "E": 2}],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(brake.disk, brake_thermal.heat_disk) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
-  connect(brake_thermal.heat_pad, brake.pad) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
-  connect(vehicle.wheel_speed, brake_thermal.wheel_speed) [{
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 580, "y": 455},
-            {"x": 580, "y": 130},
-            {"x": 270, "y": 130},
-            {"x": 270, "y": 225}
-          ],
-          "E": 2
-        }
-      ],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(driver.brake, brake.brake_command) [{
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 280, "y": 405}, {"x": 280, "y": 350}], "E": 2}],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(driver.throttle, powertrain.throttle) [{
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 280, "y": 455}, {"x": 280, "y": 475}], "E": 2}],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(vehicle.vehicle_speed, brake_thermal.vehicle_speed) [{
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 570, "y": 405},
-            {"x": 570, "y": 140},
-            {"x": 280, "y": 140},
-            {"x": 280, "y": 175}
-          ],
-          "E": 2
-        }
-      ],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(vehicle.vehicle_speed, powertrain.vehicle_speed) [{
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 570, "y": 405},
-            {"x": 570, "y": 580},
-            {"x": 280, "y": 580},
-            {"x": 280, "y": 525}
-          ],
-          "E": 2
-        }
-      ],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(vehicle.vehicle_speed, driver.speed_act) [{
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 570, "y": 405},
-            {"x": 570, "y": 580},
-            {"x": 140, "y": 580},
-            {"x": 140, "y": 455}
-          ],
-          "E": 2
-        }
-      ],
-      "renderStyle": "standard"
-    }
-  }]
-  connect(vehicle_speed_ref.y, driver.speed_ref) [{
-    "Dyad": {
-      "renderStyle": "standard",
-      "edges": [{"S": 1, "M": [{"x": 147.5, "y": 370}, {"x": 147.5, "y": 405}], "E": 2}]
-    }
-  }]
-  connect(powertrain.drive, vehicle.shaft) [{
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 420, "y": 500}, {"x": 420, "y": 430}], "E": 2}],
-      "renderStyle": "standard"
-    }
-  }]
+  connect(brake.shaft, vehicle.shaft) {^id7}
+  connect(brake.disk, brake_thermal.heat_disk) {^id8}
+  connect(brake_thermal.heat_pad, brake.pad) {^id9}
+  connect(vehicle.wheel_speed, brake_thermal.wheel_speed) {^id10}
+  connect(driver.brake, brake.brake_command) {^id11}
+  connect(driver.throttle, powertrain.throttle) {^id12}
+  connect(vehicle.vehicle_speed, brake_thermal.vehicle_speed) {^id13}
+  connect(vehicle.vehicle_speed, powertrain.vehicle_speed) {^id14}
+  connect(vehicle.vehicle_speed, driver.speed_act) {^id15}
+  connect(powertrain.drive, vehicle.shaft) {^id16}
+  connect(interpolation.y, driver.speed_ref) {^id17}
 metadata {
   "Dyad": {
     "tests": {
@@ -170,11 +46,161 @@ metadata {
         }
       }
     }
+  },
+  "_links": {
+    "brake": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 300, "x2": 400, "y2": 400, "rot": 0}
+        }
+      }
+    },
+    "powertrain": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 450, "x2": 400, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "vehicle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 380, "x2": 540, "y2": 480, "rot": 0}
+        }
+      }
+    },
+    "brake_thermal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 150, "x2": 400, "y2": 250, "rot": 0}
+        }
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 160, "y1": 380, "x2": 260, "y2": 480, "rot": 0}
+        }
+      }
+    },
+    "interpolation": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 330, "x2": 120, "y2": 430, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 420, "y": 350}, {"x": 420, "y": 430}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id9": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id10": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 580, "y": 455},
+              {"x": 580, "y": 130},
+              {"x": 270, "y": 130},
+              {"x": 270, "y": 225}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 280, "y": 405}, {"x": 280, "y": 350}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 280, "y": 455}, {"x": 280, "y": 475}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 570, "y": 405},
+              {"x": 570, "y": 140},
+              {"x": 280, "y": 140},
+              {"x": 280, "y": 175}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 570, "y": 405},
+              {"x": 570, "y": 580},
+              {"x": 280, "y": 580},
+              {"x": 280, "y": 525}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 570, "y": 405},
+              {"x": 570, "y": 580},
+              {"x": 140, "y": 580},
+              {"x": 140, "y": 455}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 420, "y": 500}, {"x": 420, "y": 430}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 142.5, "y": 380}, {"x": 142.5, "y": 405}], "E": 2}]
+      }
+    }
   }
 }
 end
 
-# Analysis to run transient simulation
+component VechicleCycleTestLUTProfile
+  extends VehicleCycleTest
+  parameter cycle_file::String = "city_cycle.csv"
+relations
+end
+
 analysis VehicleCycleAnalysis
   extends TransientAnalysis(stop = 1000.0)
   model = VehicleCycleTest()

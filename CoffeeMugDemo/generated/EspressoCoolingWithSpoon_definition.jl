@@ -7,21 +7,23 @@
 using DyadInterface
 
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@kwdef mutable struct FrictionBrakeTestAnalysisSpec <: AbstractTransientAnalysisSpec
-  name::Symbol = :FrictionBrakeTestAnalysis
-  var"alg"::String = "auto"
+@kwdef mutable struct EspressoCoolingWithSpoonSpec <: AbstractTransientAnalysisSpec
+  name::Symbol = :EspressoCoolingWithSpoon
+  var"alg"::String = "Rodas5P"
   var"start"::Real = 0
-  var"stop"::Real = 4.75
+  var"stop"::Real = 6000
   var"abstol"::Real = 0.000001
   var"reltol"::Real = 0.000001
   var"saveat"::Real = 0
   var"dtmax"::Real = 0
   var"IfLifting"::Bool = false
-  # Test system for FrictionBrake with inertia, torque source, and thermal boundaries
-  var"model"::Union{Nothing, System} = FrictionBrakeDemo.FrictionBrakeTest(; name=:FrictionBrakeTest)
+  # ==============================================================================
+  # TOP-LEVEL ASSEMBLY: Espresso Cup System with Spoon
+  # ==============================================================================
+  var"model"::Union{Nothing, System} = CoffeeMugDemo.EspressoCupSystemWithSpoon(; name=:EspressoCupSystemWithSpoon)
 end
 
-function DyadInterface.run_analysis(spec::FrictionBrakeTestAnalysisSpec)
+function DyadInterface.run_analysis(spec::EspressoCoolingWithSpoonSpec)
   spec.model = DyadInterface.update_model(spec.model, (; ))
   base_spec = TransientAnalysisSpec(;
     name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
@@ -29,6 +31,6 @@ function DyadInterface.run_analysis(spec::FrictionBrakeTestAnalysisSpec)
   run_analysis(base_spec)
 end
 
-FrictionBrakeTestAnalysis(;kwargs...) = run_analysis(FrictionBrakeTestAnalysisSpec(;kwargs...))
-export FrictionBrakeTestAnalysis, FrictionBrakeTestAnalysisSpec
-export FrictionBrakeTestAnalysisSpec, FrictionBrakeTestAnalysis
+EspressoCoolingWithSpoon(;kwargs...) = run_analysis(EspressoCoolingWithSpoonSpec(;kwargs...))
+export EspressoCoolingWithSpoon, EspressoCoolingWithSpoonSpec
+export EspressoCoolingWithSpoonSpec, EspressoCoolingWithSpoon
